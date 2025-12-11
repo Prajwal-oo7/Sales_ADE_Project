@@ -1,0 +1,32 @@
+{
+	"name": "ds_blob_healthcare_controlfile",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_blobpp01",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "Control Files.csv",
+				"container": "healthcare-flatfiles"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "File Name ",
+				"type": "String"
+			},
+			{
+				"name": "Record count",
+				"type": "String"
+			}
+		]
+	}
+}
