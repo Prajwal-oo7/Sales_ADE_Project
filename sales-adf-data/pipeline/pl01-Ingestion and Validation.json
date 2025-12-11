@@ -71,7 +71,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataset": {
-						"referenceName": "ds_blobpp01_healthcareFlatfiles",
+						"referenceName": "ds_blobpp01_MD_healthcareFlatfiles",
 						"type": "DatasetReference"
 					},
 					"fieldList": [
@@ -209,7 +209,7 @@
 								],
 								"ifTrueActivities": [
 									{
-										"name": "Data flow1",
+										"name": "exe-Df01_CountRecords",
 										"type": "ExecuteDataFlow",
 										"dependsOn": [],
 										"policy": {

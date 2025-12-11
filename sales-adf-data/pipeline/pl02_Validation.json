@@ -38,7 +38,7 @@
 									}
 								},
 								"dataset": {
-									"referenceName": "ds_blobpp01_healthcareFlatfiles",
+									"referenceName": "ds_blobpp01_MD_healthcareFlatfiles",
 									"type": "DatasetReference",
 									"parameters": {
 										"filename": {
