@@ -55,10 +55,7 @@
 				"typeProperties": {
 					"dataset": {
 						"referenceName": "ds_blobpp01_MD_healthcareFlatfiles",
-						"type": "DatasetReference",
-						"parameters": {
-							"filename": null
-						}
+						"type": "DatasetReference"
 					},
 					"fieldList": [
 						"childItems"
