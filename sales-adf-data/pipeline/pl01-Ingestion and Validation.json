@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Lookup1",
+				"name": "Lkp01-ControlFile",
 				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
@@ -29,10 +29,255 @@
 					"dataset": {
 						"referenceName": "ds_blob_healthcare_controlfile",
 						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "SetVar01-ControlFileList",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Lkp01-ControlFile",
+						"dependencyConditions": [
+							"Succeeded"
+						]
 					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "ControlFileList",
+					"value": {
+						"value": "@activity('Lkp01-ControlFile').output.value",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "GetMD1-FileList",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "ds_blobpp01_healthcareFlatfiles",
+						"type": "DatasetReference"
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobStorageReadSettings",
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "Filter1",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "GetMD1-FileList",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GetMD1-FileList').output.childItems",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@not(equals(item().name,'Control_File.csv'))",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SetVar02-ActualFileList",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Filter1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "ActualFileList",
+					"value": {
+						"value": "@activity('Filter1').output.value",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "SetVar02-ActualFileList",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "SetVar01-ControlFileList",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Lkp01-ControlFile').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "If Condition1",
+							"type": "IfCondition",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@contains(variables('ActualFileList'), item().FileName)",
+									"type": "Expression"
+								},
+								"ifFalseActivities": [
+									{
+										"name": "SetVar03-isValidationFailed",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "isValidationFailed",
+											"value": "true"
+										}
+									},
+									{
+										"name": "SetVar04-ValidationErrorMsg",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "SetVar03-isValidationFailed",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "ValidationErrorMsg",
+											"value": {
+												"value": "@concat('Missing File: ',item().FileName)",
+												"type": "Expression"
+											}
+										}
+									}
+								],
+								"ifTrueActivities": [
+									{
+										"name": "Data flow1",
+										"type": "ExecuteDataFlow",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"dataflow": {
+												"referenceName": "df01_CountRecords",
+												"type": "DataFlowReference",
+												"parameters": {
+													"df_FileName": {
+														"value": "'@{item().name}'",
+														"type": "Expression"
+													},
+													"df_Container": {
+														"value": "'@{pipeline().parameters.blobContainer}'",
+														"type": "Expression"
+													}
+												},
+												"datasetParameters": {
+													"dfSource1": {
+														"src_filename": "$$df_FileName",
+														"src_container": "$$df_Container"
+													}
+												}
+											},
+											"compute": {
+												"coreCount": 8,
+												"computeType": "General"
+											},
+											"traceLevel": "Fine"
+										}
+									}
+								]
+							}
+						}
+					]
 				}
 			}
 		],
+		"parameters": {
+			"blobContainer": {
+				"type": "string",
+				"defaultValue": "healthcare-flatfiles"
+			}
+		},
+		"variables": {
+			"ControlFileList": {
+				"type": "Array"
+			},
+			"ActualFileList": {
+				"type": "Array"
+			},
+			"isValidationFailed": {
+				"type": "String"
+			},
+			"isFileMissing": {
+				"type": "String"
+			},
+			"ValidationErrorMsg": {
+				"type": "String"
+			}
+		},
 		"folder": {
 			"name": "Healthcare Mini Project-01"
 		},

@@ -9,21 +9,45 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "ds_blobpp01_healthcareFlatfiles",
+						"referenceName": "ds_blobcsv_HealthcareFlatFiles",
 						"type": "DatasetReference"
 					},
-					"name": "source1"
+					"name": "dfSource1"
 				}
 			],
-			"sinks": [],
-			"transformations": [],
+			"sinks": [
+				{
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "aggregate1"
+				}
+			],
 			"scriptLines": [
 				"parameters{",
-				"     pFileName as string",
+				"     df_FileName as string,",
+				"     df_Container as string",
 				"}",
-				"source(allowSchemaDrift: true,",
+				"source(output(",
+				"          diagnosis_code as string,",
+				"          diagnosis_description as string,",
+				"          icd_version_type as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false) ~> source1"
+				"     inferDriftedColumnTypes: true,",
+				"     ignoreNoFilesFound: false) ~> dfSource1",
+				"dfSource1 aggregate(recordCount = count()) ~> aggregate1",
+				"aggregate1 sink(validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     keys:['recordCount'],",
+				"     store: 'cache',",
+				"     format: 'inline',",
+				"     output: true,",
+				"     saveOrder: 1) ~> sink1"
 			]
 		}
 	}

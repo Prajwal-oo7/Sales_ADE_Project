@@ -10,7 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": "Control Files.csv",
+				"fileName": "Control_File.csv",
 				"container": "healthcare-flatfiles"
 			},
 			"columnDelimiter": ",",

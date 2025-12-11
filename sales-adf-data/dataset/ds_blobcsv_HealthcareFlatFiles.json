@@ -1,0 +1,50 @@
+{
+	"name": "ds_blobcsv_HealthcareFlatFiles",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_blobpp01",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"src_filename": {
+				"type": "string"
+			},
+			"src_container": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@dataset().src_filename",
+					"type": "Expression"
+				},
+				"container": {
+					"value": "@dataset().src_container",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "diagnosis_code",
+				"type": "String"
+			},
+			{
+				"name": "diagnosis_description",
+				"type": "String"
+			},
+			{
+				"name": "icd_version_type",
+				"type": "String"
+			}
+		]
+	}
+}
