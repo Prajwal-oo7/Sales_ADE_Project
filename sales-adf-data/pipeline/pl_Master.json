@@ -1,0 +1,27 @@
+{
+	"name": "pl_Master",
+	"properties": {
+		"activities": [
+			{
+				"name": "Exe-pl01",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl01-Ingestion and Validation",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "Healthcare Mini Project-01"
+		},
+		"annotations": []
+	}
+}

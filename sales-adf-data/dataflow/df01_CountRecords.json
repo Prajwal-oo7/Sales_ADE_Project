@@ -1,0 +1,19 @@
+{
+	"name": "df01_CountRecords",
+	"properties": {
+		"folder": {
+			"name": "Healthcare MIni Project-01"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [],
+			"sinks": [],
+			"transformations": [],
+			"scriptLines": [
+				"parameters{",
+				"     pFileName as string",
+				"}"
+			]
+		}
+	}
+}
