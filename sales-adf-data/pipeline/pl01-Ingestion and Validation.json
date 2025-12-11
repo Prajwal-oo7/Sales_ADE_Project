@@ -34,30 +34,6 @@
 				}
 			},
 			{
-				"name": "SetVar01-ControlFileList",
-				"type": "SetVariable",
-				"dependsOn": [
-					{
-						"activity": "Lkp01-ControlFile",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"variableName": "ControlFileList",
-					"value": {
-						"value": "@activity('Lkp01-ControlFile').output.value",
-						"type": "Expression"
-					}
-				}
-			},
-			{
 				"name": "GetMD1-FileList",
 				"type": "GetMetadata",
 				"dependsOn": [],
@@ -110,41 +86,17 @@
 				}
 			},
 			{
-				"name": "SetVar02-ActualFileList",
-				"type": "SetVariable",
+				"name": "ForEach1",
+				"type": "ForEach",
 				"dependsOn": [
 					{
 						"activity": "Filter1",
 						"dependencyConditions": [
 							"Succeeded"
 						]
-					}
-				],
-				"policy": {
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"variableName": "ActualFileList",
-					"value": {
-						"value": "@activity('Filter1').output.value",
-						"type": "Expression"
-					}
-				}
-			},
-			{
-				"name": "ForEach1",
-				"type": "ForEach",
-				"dependsOn": [
-					{
-						"activity": "SetVar02-ActualFileList",
-						"dependencyConditions": [
-							"Succeeded"
-						]
 					},
 					{
-						"activity": "SetVar01-ControlFileList",
+						"activity": "Lkp01-ControlFile",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -164,7 +116,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@contains(variables('ActualFileList'), item().FileName)",
+									"value": "@contains(string(activity('Filter1').output.Value), item().FileName)\n",
 									"type": "Expression"
 								},
 								"ifFalseActivities": [
@@ -226,7 +178,7 @@
 												"type": "DataFlowReference",
 												"parameters": {
 													"df_FileName": {
-														"value": "'@{item().name}'",
+														"value": "'@{item().FileName}'",
 														"type": "Expression"
 													},
 													"df_Container": {
