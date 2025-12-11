@@ -58,6 +58,9 @@
 				"type": "array"
 			}
 		},
+		"folder": {
+			"name": "Healthcare mini project"
+		},
 		"annotations": []
 	}
 }
