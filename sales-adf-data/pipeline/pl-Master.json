@@ -1,0 +1,56 @@
+{
+	"name": "pl-Master",
+	"properties": {
+		"activities": [
+			{
+				"name": "Exe-Pl01_Ingestion",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl01_Ingestion",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Exe-Pl02-Validation",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Exe-Pl01_Ingestion",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl02_Validation",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"ValidFilesList": {
+							"value": "@activity('Exe-Pl01_Ingestion').output.pipelineVariables.ValidFilesList",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"folder": {
+			"name": "Healthcare mini project"
+		},
+		"annotations": []
+	}
+}
