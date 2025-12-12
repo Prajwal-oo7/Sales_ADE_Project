@@ -333,7 +333,11 @@
 										"userProperties": [],
 										"typeProperties": {
 											"method": "POST",
-											"url": "https://force-fail"
+											"url": "https://force-fail",
+											"body": {
+												"value": "@variables('ValidationErrorMsg')",
+												"type": "Expression"
+											}
 										}
 									}
 								],
@@ -394,7 +398,6 @@
 					{
 						"activity": "ForEach1",
 						"dependencyConditions": [
-							"Completed",
 							"Failed"
 						]
 					}
