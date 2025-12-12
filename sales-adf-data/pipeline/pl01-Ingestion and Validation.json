@@ -121,25 +121,6 @@
 									"value": "@contains(string(activity('Filter1').output.Value), item().FileName)\n",
 									"type": "Expression"
 								},
-								"ifFalseActivities": [
-									{
-										"name": "SetVar02-ValidationErrorMsg",
-										"type": "SetVariable",
-										"dependsOn": [],
-										"policy": {
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"variableName": "ValidationErrorMsg",
-											"value": {
-												"value": "@concat('Missing File: ',item().FileName)",
-												"type": "Expression"
-											}
-										}
-									}
-								],
 								"ifTrueActivities": [
 									{
 										"name": "exe-Df01_CountRecords",
@@ -208,7 +189,31 @@
 										"userProperties": [],
 										"typeProperties": {
 											"variableName": "isFileExist",
-											"value": "true"
+											"value": "True"
+										}
+									},
+									{
+										"name": "SetVar02-ActualRecordCount",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "exe-Df01_CountRecords",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "ActualRecordCount",
+											"value": {
+												"value": "@string(activity('exe-Df01_CountRecords').output.runStatus.output.sink1.value[0].recordCount)",
+												"type": "Expression"
+											}
 										}
 									}
 								]
@@ -228,12 +233,12 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@and(equals(string(variables('isFileExist')),string('true')),equals(int(string(activity('exe-Df01_CountRecords').output.runStatus.output.sink1.value[0].recordCount)),int(item().RecordCount) ) )",
+									"value": "@and(equals(string(variables('isFileExist')),string('true')),equals(int(string(variables('ActualRecordCount'))),int(item().RecordCount) ) )",
 									"type": "Expression"
 								},
 								"ifFalseActivities": [
 									{
-										"name": "SetVar04-IsValidationFailed",
+										"name": "SetVar03-IsValidationFailed",
 										"type": "SetVariable",
 										"dependsOn": [],
 										"policy": {
@@ -243,15 +248,15 @@
 										"userProperties": [],
 										"typeProperties": {
 											"variableName": "isValidationFailed",
-											"value": "true"
+											"value": "True"
 										}
 									},
 									{
-										"name": "SetVar05-ValidationErrorMsg",
+										"name": "SetVar04-ValidationErrorMsg",
 										"type": "SetVariable",
 										"dependsOn": [
 											{
-												"activity": "SetVar04-IsValidationFailed",
+												"activity": "SetVar03-IsValidationFailed",
 												"dependencyConditions": [
 													"Succeeded"
 												]
@@ -265,7 +270,7 @@
 										"typeProperties": {
 											"variableName": "ValidationErrorMsg",
 											"value": {
-												"value": "@concat(item().Filename,' File Exists =', string(variables('isFileExist')),\n'. Count mismatched for ', item().FileName,\n'. Expected Count =', string(item().RecordCount),\n', Actual Count=', string(activity('exe-Df01_CountRecords').output.runStatus.output.sink1.value[0].recordCount))",
+												"value": "@concat('FileName: ',item().FileName,\n    '\\n Valid Record Count: ',string(item().RecordCount),\n    '\\n File Exists: ',string(variables('isFileExist')),\n    '\\n Record Count Mismatched!',\n    '\\n Actual Record Count: ', string(variables('ActualRecordCount')))",
 												"type": "Expression"
 											}
 										}
@@ -304,7 +309,7 @@
 			},
 			"isFileExist": {
 				"type": "String",
-				"defaultValue": "false"
+				"defaultValue": "False"
 			},
 			"ValidationErrorMsg": {
 				"type": "String"
@@ -313,7 +318,8 @@
 				"type": "Array"
 			},
 			"ActualRecordCount": {
-				"type": "String"
+				"type": "String",
+				"defaultValue": "N/A"
 			}
 		},
 		"folder": {
