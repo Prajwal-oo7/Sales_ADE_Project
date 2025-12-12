@@ -311,34 +311,6 @@
 											],
 											"setSystemVariable": true
 										}
-									},
-									{
-										"name": "Web1-to stop for each",
-										"type": "WebActivity",
-										"dependsOn": [
-											{
-												"activity": "SetVar06-returnValidationError",
-												"dependencyConditions": [
-													"Succeeded"
-												]
-											}
-										],
-										"policy": {
-											"timeout": "0.12:00:00",
-											"retry": 0,
-											"retryIntervalInSeconds": 30,
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"method": "POST",
-											"url": "https://force-fail",
-											"body": {
-												"value": "@variables('ValidationErrorMsg')",
-												"type": "Expression"
-											}
-										}
 									}
 								],
 								"ifTrueActivities": [
@@ -362,8 +334,8 @@
 				}
 			},
 			{
-				"name": "SetVar05-returnValidFileList",
-				"type": "SetVariable",
+				"name": "If Condition1",
+				"type": "IfCondition",
 				"dependsOn": [
 					{
 						"activity": "ForEach1",
@@ -372,43 +344,52 @@
 						]
 					}
 				],
-				"policy": {
-					"secureOutput": false,
-					"secureInput": false
-				},
 				"userProperties": [],
 				"typeProperties": {
-					"variableName": "pipelineReturnValue",
-					"value": [
+					"expression": {
+						"value": "@equals(string(variables('isValidationFailed')),string('True') )",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
 						{
-							"key": "returnValidFileList",
-							"value": {
-								"type": "Expression",
-								"content": "@variables('ValidFileList')"
+							"name": "SetVar05-returnValidFileList_copy1",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "pipelineReturnValue",
+								"value": [
+									{
+										"key": "returnValidFileList",
+										"value": {
+											"type": "Expression",
+											"content": "@variables('ValidFileList')"
+										}
+									}
+								],
+								"setSystemVariable": true
 							}
 						}
 					],
-					"setSystemVariable": true
-				}
-			},
-			{
-				"name": "Fail2",
-				"type": "Fail",
-				"dependsOn": [
-					{
-						"activity": "ForEach1",
-						"dependencyConditions": [
-							"Failed"
-						]
-					}
-				],
-				"userProperties": [],
-				"typeProperties": {
-					"message": {
-						"value": "@concat('Validation Failed: ', variables('ValidationErrorMsg'))",
-						"type": "Expression"
-					},
-					"errorCode": "01"
+					"ifTrueActivities": [
+						{
+							"name": "Fail2_copy1",
+							"type": "Fail",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"message": {
+									"value": "@concat('Validation Failed: ', variables('ValidationErrorMsg'))",
+									"type": "Expression"
+								},
+								"errorCode": "01"
+							}
+						}
+					]
 				}
 			}
 		],
