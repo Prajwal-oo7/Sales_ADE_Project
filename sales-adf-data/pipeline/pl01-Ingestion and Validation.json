@@ -337,6 +337,41 @@
 												"type": "Expression"
 											}
 										}
+									},
+									{
+										"name": "SetVar06-returnValidFilesList",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "AppendVar01-ValidFileList",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "pipelineReturnValue",
+											"value": [
+												{
+													"key": "returnValidFilesList",
+													"value": {
+														"type": "Array",
+														"content": [
+															{
+																"type": "String",
+																"content": "@variables('validFileList')"
+															}
+														]
+													}
+												}
+											],
+											"setSystemVariable": true
+										}
 									}
 								]
 							}
@@ -349,6 +384,12 @@
 			"blobContainer": {
 				"type": "string",
 				"defaultValue": "healthcare-flatfiles"
+			},
+			"pl01_ValidFileList": {
+				"type": "array"
+			},
+			"pl01_isValidationFailed": {
+				"type": "string"
 			}
 		},
 		"variables": {
