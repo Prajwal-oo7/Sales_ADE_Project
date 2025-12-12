@@ -19,7 +19,55 @@
 				}
 			},
 			{
-				"name": "Set variable1",
+				"name": "ExePL02-EmailAlert",
+				"type": "ExecutePipeline",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl02-EmailAert",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"pl01_ValidationError": {
+							"value": "@activity('Exe-pl01').output.pipelineReturnValue.returnValidationErrorMsg",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Set variable1 error",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Exe-pl01",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "pl01-ValidationError",
+					"value": {
+						"value": "@activity('Exe-pl01').output.pipelineReturnValue.returnValidationErrorMsg",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set variable1 file list",
 				"type": "SetVariable",
 				"dependsOn": [
 					{
@@ -35,7 +83,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"variableName": "masterValidFileList",
+					"variableName": "pl01-ValidFiles",
 					"value": {
 						"value": "@activity('Exe-pl01').output.pipelineReturnValue.returnValidFileList",
 						"type": "Expression"
@@ -44,7 +92,10 @@
 			}
 		],
 		"variables": {
-			"masterValidFileList": {
+			"pl01-ValidationError": {
+				"type": "String"
+			},
+			"pl01-ValidFiles": {
 				"type": "Array"
 			}
 		},

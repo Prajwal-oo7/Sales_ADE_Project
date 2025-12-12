@@ -1,34 +1,7 @@
 {
-	"name": "pl03-EmailAertsPl",
+	"name": "pl02-EmailAert",
 	"properties": {
 		"activities": [
-			{
-				"name": "If Condition1",
-				"type": "IfCondition",
-				"dependsOn": [],
-				"userProperties": [],
-				"typeProperties": {
-					"ifTrueActivities": [
-						{
-							"name": "Web1_fail",
-							"type": "WebActivity",
-							"dependsOn": [],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"method": "POST",
-								"url": "https://prod-22.centralindia.logic.azure.com:443/workflows/30a1424665eb45ff9ea326f516987a6c/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=YFp7ksKnI1OjfhlmCKqwsqcCHds5ZM1CchcIDD_n4vA"
-							}
-						}
-					]
-				}
-			},
 			{
 				"name": "Web1_copy1",
 				"type": "WebActivity",
@@ -45,8 +18,40 @@
 					"method": "POST",
 					"url": "https://prod-22.centralindia.logic.azure.com:443/workflows/30a1424665eb45ff9ea326f516987a6c/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=YFp7ksKnI1OjfhlmCKqwsqcCHds5ZM1CchcIDD_n4vA"
 				}
+			},
+			{
+				"name": "Web1-send error logs mail_copy1",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"url": "https://prod-22.centralindia.logic.azure.com:443/workflows/30a1424665eb45ff9ea326f516987a6c/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=YFp7ksKnI1OjfhlmCKqwsqcCHds5ZM1CchcIDD_n4vA",
+					"body": {
+						"value": "{\n\"DataFactoryName\" : \"@{pipeline().DataFactory}\",\n\"EmailTo\" : \"prajwal007042001@gmail.com\",\n\"Subject\" : \"ADF: Validation failed \",\n\"PipelineName\" : \"@{pipeline().Pipeline}\",\n\"activityname\" : \"If_countMatches\",\n\"status\" : \"Pipeline Failed\",\n\"ErrorMessage\" : \"@{variables('plverrormsg')}\"\n}",
+						"type": "Expression"
+					}
+				}
 			}
 		],
+		"parameters": {
+			"pl01_ValidationError": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"plverrormsg": {
+				"type": "String",
+				"defaultValue": "error"
+			}
+		},
 		"folder": {
 			"name": "Healthcare Mini Project-01"
 		},
