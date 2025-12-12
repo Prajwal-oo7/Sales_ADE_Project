@@ -123,30 +123,9 @@
 								},
 								"ifFalseActivities": [
 									{
-										"name": "SetVar03-isValidationFailed",
+										"name": "SetVar02-ValidationErrorMsg",
 										"type": "SetVariable",
 										"dependsOn": [],
-										"policy": {
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"variableName": "isValidationFailed",
-											"value": "true"
-										}
-									},
-									{
-										"name": "SetVar04-ValidationErrorMsg",
-										"type": "SetVariable",
-										"dependsOn": [
-											{
-												"activity": "SetVar03-isValidationFailed",
-												"dependencyConditions": [
-													"Succeeded"
-												]
-											}
-										],
 										"policy": {
 											"secureOutput": false,
 											"secureInput": false
@@ -165,7 +144,14 @@
 									{
 										"name": "exe-Df01_CountRecords",
 										"type": "ExecuteDataFlow",
-										"dependsOn": [],
+										"dependsOn": [
+											{
+												"activity": "SetVar01-isFileExist",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
 										"policy": {
 											"timeout": "0.12:00:00",
 											"retry": 0,
@@ -210,12 +196,26 @@
 												"firstRowOnly": true
 											}
 										}
+									},
+									{
+										"name": "SetVar01-isFileExist",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "isFileExist",
+											"value": "true"
+										}
 									}
 								]
 							}
 						},
 						{
-							"name": "If2-recordCountMatches",
+							"name": "If2-CountMatches",
 							"type": "IfCondition",
 							"dependsOn": [
 								{
@@ -228,12 +228,12 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@equals(activity('exe-Df01_CountRecords').output.runStatus.output.sink1.value[0].recordCount\r\n,item().RecordCount)",
+									"value": "@and(equals(string(variables('isFileExist')),string('true')),equals(int(string(activity('exe-Df01_CountRecords').output.runStatus.output.sink1.value[0].recordCount)),int(item().RecordCount) ) )",
 									"type": "Expression"
 								},
 								"ifFalseActivities": [
 									{
-										"name": "Setvar3-isValidationFailed",
+										"name": "SetVar04-IsValidationFailed",
 										"type": "SetVariable",
 										"dependsOn": [],
 										"policy": {
@@ -247,11 +247,11 @@
 										}
 									},
 									{
-										"name": "SetVar4-ValidationErrorMsg",
+										"name": "SetVar05-ValidationErrorMsg",
 										"type": "SetVariable",
 										"dependsOn": [
 											{
-												"activity": "Setvar3-isValidationFailed",
+												"activity": "SetVar04-IsValidationFailed",
 												"dependencyConditions": [
 													"Succeeded"
 												]
@@ -265,7 +265,7 @@
 										"typeProperties": {
 											"variableName": "ValidationErrorMsg",
 											"value": {
-												"value": "@concat(\n   'Record count mismatch for ',\n   item().FileName,\n   '. Expected = ',\n   item().RecordCcount,\n   ', Actual = ',\n   activity('exe-Df01_CountRecords').output.rows[0].recordCount)\n)",
+												"value": "@concat(item().Filename,' File Exists =', string(variables('isFileExist')),\n'. Count mismatched for ', item().FileName,\n'. Expected Count =', string(item().RecordCount),\n', Actual Count=', string(activity('exe-Df01_CountRecords').output.runStatus.output.sink1.value[0].recordCount))",
 												"type": "Expression"
 											}
 										}
@@ -273,7 +273,7 @@
 								],
 								"ifTrueActivities": [
 									{
-										"name": "Append variable1",
+										"name": "AppendVar01-ValidFileList",
 										"type": "AppendVariable",
 										"dependsOn": [],
 										"userProperties": [],
@@ -299,23 +299,21 @@
 			}
 		},
 		"variables": {
-			"ControlFileList": {
-				"type": "Array"
-			},
-			"ActualFileList": {
-				"type": "Array"
-			},
 			"isValidationFailed": {
 				"type": "String"
 			},
-			"isFileMissing": {
-				"type": "String"
+			"isFileExist": {
+				"type": "String",
+				"defaultValue": "false"
 			},
 			"ValidationErrorMsg": {
 				"type": "String"
 			},
 			"ValidFileList": {
 				"type": "Array"
+			},
+			"ActualRecordCount": {
+				"type": "String"
 			}
 		},
 		"folder": {
