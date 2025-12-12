@@ -276,26 +276,6 @@
 										}
 									},
 									{
-										"name": "Fail1",
-										"type": "Fail",
-										"dependsOn": [
-											{
-												"activity": "SetVar06-returnValidationError",
-												"dependencyConditions": [
-													"Succeeded"
-												]
-											}
-										],
-										"userProperties": [],
-										"typeProperties": {
-											"message": {
-												"value": "@concat('Validation Failed: ', variables('ValidationErrorMsg'))",
-												"type": "Expression"
-											},
-											"errorCode": "02"
-										}
-									},
-									{
 										"name": "SetVar06-returnValidationError",
 										"type": "SetVariable",
 										"dependsOn": [
@@ -331,6 +311,30 @@
 											],
 											"setSystemVariable": true
 										}
+									},
+									{
+										"name": "Web1-to stop for each",
+										"type": "WebActivity",
+										"dependsOn": [
+											{
+												"activity": "SetVar06-returnValidationError",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"method": "GET",
+											"url": "https://force-fail"
+										}
 									}
 								],
 								"ifTrueActivities": [
@@ -346,41 +350,62 @@
 												"type": "Expression"
 											}
 										}
-									},
-									{
-										"name": "SetVar05-returnValidFileList",
-										"type": "SetVariable",
-										"dependsOn": [
-											{
-												"activity": "AppendVar01-ValidFileList",
-												"dependencyConditions": [
-													"Succeeded"
-												]
-											}
-										],
-										"policy": {
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"variableName": "pipelineReturnValue",
-											"value": [
-												{
-													"key": "returnValidFileList",
-													"value": {
-														"type": "Expression",
-														"content": "@variables('ValidFileList')"
-													}
-												}
-											],
-											"setSystemVariable": true
-										}
 									}
 								]
 							}
 						}
 					]
+				}
+			},
+			{
+				"name": "SetVar05-returnValidFileList",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "ForEach1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "pipelineReturnValue",
+					"value": [
+						{
+							"key": "returnValidFileList",
+							"value": {
+								"type": "Expression",
+								"content": "@variables('ValidFileList')"
+							}
+						}
+					],
+					"setSystemVariable": true
+				}
+			},
+			{
+				"name": "Fail2",
+				"type": "Fail",
+				"dependsOn": [
+					{
+						"activity": "ForEach1",
+						"dependencyConditions": [
+							"Completed",
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"message": {
+						"value": "@concat('Validation Failed: ', variables('ValidationErrorMsg'))",
+						"type": "Expression"
+					},
+					"errorCode": "01"
 				}
 			}
 		],
