@@ -274,54 +274,6 @@
 												"type": "Expression"
 											}
 										}
-									},
-									{
-										"name": "Web1-send error logs mail",
-										"type": "WebActivity",
-										"dependsOn": [
-											{
-												"activity": "SetVar04-ValidationErrorMsg",
-												"dependencyConditions": [
-													"Succeeded"
-												]
-											}
-										],
-										"policy": {
-											"timeout": "0.12:00:00",
-											"retry": 0,
-											"retryIntervalInSeconds": 30,
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"method": "POST",
-											"url": "https://prod-22.centralindia.logic.azure.com:443/workflows/30a1424665eb45ff9ea326f516987a6c/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=YFp7ksKnI1OjfhlmCKqwsqcCHds5ZM1CchcIDD_n4vA",
-											"body": {
-												"value": "{\n\"DataFactoryName\" : \"@{pipeline().DataFactory}\",\n\"EmailTo\" : \"prajwal007042001@gmail.com\",\n\"Subject\" : \"ADF: Validation failed \",\n\"PipelineName\" : \"@{pipeline().Pipeline}\",\n\"activityname\" : \"If_countMatches\",\n\"status\" : \"Pipeline Failed\",\n\"ErrorMessage\" : \"@{variables('ValidationErrorMsg')}\"\n}",
-												"type": "Expression"
-											}
-										}
-									},
-									{
-										"name": "Fail1",
-										"type": "Fail",
-										"dependsOn": [
-											{
-												"activity": "Web1-send error logs mail",
-												"dependencyConditions": [
-													"Succeeded"
-												]
-											}
-										],
-										"userProperties": [],
-										"typeProperties": {
-											"message": {
-												"value": "@string(variables('ValidationErrorMsg'))",
-												"type": "Expression"
-											},
-											"errorCode": "02"
-										}
 									}
 								],
 								"ifTrueActivities": [
@@ -337,43 +289,80 @@
 												"type": "Expression"
 											}
 										}
-									},
-									{
-										"name": "SetVar06-returnValidFilesList",
-										"type": "SetVariable",
-										"dependsOn": [
-											{
-												"activity": "AppendVar01-ValidFileList",
-												"dependencyConditions": [
-													"Succeeded"
-												]
-											}
-										],
-										"policy": {
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"variableName": "pipelineReturnValue",
-											"value": [
-												{
-													"key": "returnValidFilesList",
-													"value": {
-														"type": "Array",
-														"content": [
-															{
-																"type": "String",
-																"content": "@variables('validFileList')"
-															}
-														]
-													}
-												}
-											],
-											"setSystemVariable": true
-										}
 									}
 								]
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "If3-ValidationFail",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "ForEach1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(string(variables('isValidationFailed')),string('True'))",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "SetVar06-returnFileList",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "pipelineReturnValue",
+								"value": [
+									{
+										"key": "returnValidFileList",
+										"value": {
+											"type": "Array",
+											"content": [
+												{
+													"type": "String",
+													"content": "@variables('ValidFileList')"
+												}
+											]
+										}
+									}
+								],
+								"setSystemVariable": true
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "Web1-send error logs mail_copy1",
+							"type": "WebActivity",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"method": "POST",
+								"url": "https://prod-22.centralindia.logic.azure.com:443/workflows/30a1424665eb45ff9ea326f516987a6c/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=YFp7ksKnI1OjfhlmCKqwsqcCHds5ZM1CchcIDD_n4vA",
+								"body": {
+									"value": "{\n\"DataFactoryName\" : \"@{pipeline().DataFactory}\",\n\"EmailTo\" : \"prajwal007042001@gmail.com\",\n\"Subject\" : \"ADF: Validation failed \",\n\"PipelineName\" : \"@{pipeline().Pipeline}\",\n\"activityname\" : \"If_countMatches\",\n\"status\" : \"Pipeline Failed\",\n\"ErrorMessage\" : \"@{variables('ValidationErrorMsg')}\"\n}",
+									"type": "Expression"
+								}
 							}
 						}
 					]
@@ -384,12 +373,6 @@
 			"blobContainer": {
 				"type": "string",
 				"defaultValue": "healthcare-flatfiles"
-			},
-			"pl01_ValidFileList": {
-				"type": "array"
-			},
-			"pl01_isValidationFailed": {
-				"type": "string"
 			}
 		},
 		"variables": {
