@@ -19,8 +19,8 @@
 				}
 			},
 			{
-				"name": "Execute Pipeline1",
-				"type": "ExecutePipeline",
+				"name": "Set variable1",
+				"type": "SetVariable",
 				"dependsOn": [
 					{
 						"activity": "Exe-pl01",
@@ -30,41 +30,24 @@
 					}
 				],
 				"policy": {
+					"secureOutput": false,
 					"secureInput": false
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"pipeline": {
-						"referenceName": "pl03-EmailAertsPl",
-						"type": "PipelineReference"
-					},
-					"waitOnCompletion": true
-				}
-			},
-			{
-				"name": "Execute Pipeline2",
-				"type": "ExecutePipeline",
-				"dependsOn": [
-					{
-						"activity": "Execute Pipeline1",
-						"dependencyConditions": [
-							"Succeeded"
-						]
+					"variableName": "masterValidFileList",
+					"value": {
+						"value": "@activity('Exe-pl01').output.pipelineReturnValue.returnValidFileList",
+						"type": "Expression"
 					}
-				],
-				"policy": {
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"pipeline": {
-						"referenceName": "pl04-LogsPL",
-						"type": "PipelineReference"
-					},
-					"waitOnCompletion": true
 				}
 			}
 		],
+		"variables": {
+			"masterValidFileList": {
+				"type": "Array"
+			}
+		},
 		"folder": {
 			"name": "Healthcare Mini Project-01"
 		},
