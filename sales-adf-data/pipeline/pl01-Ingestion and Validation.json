@@ -233,7 +233,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@and(equals(string(variables('isFileExist')),string('true')),equals(int(string(variables('ActualRecordCount'))),int(item().RecordCount) ) )",
+									"value": "@and(equals(string(variables('isFileExist')),string('True')),equals(int(string(variables('ActualRecordCount'))),int(item().RecordCount) ) )",
 									"type": "Expression"
 								},
 								"ifFalseActivities": [
@@ -273,6 +273,46 @@
 												"value": "@concat('FileName: ',item().FileName,\n    '\\n Valid Record Count: ',string(item().RecordCount),\n    '\\n File Exists: ',string(variables('isFileExist')),\n    '\\n Record Count Mismatched!',\n    '\\n Actual Record Count: ', string(variables('ActualRecordCount')))",
 												"type": "Expression"
 											}
+										}
+									},
+									{
+										"name": "Web1",
+										"type": "WebActivity",
+										"dependsOn": [
+											{
+												"activity": "SetVar04-ValidationErrorMsg",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": []
+									},
+									{
+										"name": "Fail1",
+										"type": "Fail",
+										"dependsOn": [
+											{
+												"activity": "Web1",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"userProperties": [],
+										"typeProperties": {
+											"message": {
+												"value": "@string(variables('ValidationErrorMsg'))",
+												"type": "Expression"
+											},
+											"errorCode": "02"
 										}
 									}
 								],
