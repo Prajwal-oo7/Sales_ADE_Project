@@ -43,7 +43,6 @@
 				"aggregate1 sink(validateSchema: false,",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     keys:['recordCount'],",
 				"     store: 'cache',",
 				"     format: 'inline',",
 				"     output: true,",

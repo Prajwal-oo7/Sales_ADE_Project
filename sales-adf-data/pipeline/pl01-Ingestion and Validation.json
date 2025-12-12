@@ -55,6 +55,7 @@
 					],
 					"storeSettings": {
 						"type": "AzureBlobStorageReadSettings",
+						"recursive": true,
 						"enablePartitionDiscovery": false
 					},
 					"formatSettings": {
@@ -108,6 +109,7 @@
 						"value": "@activity('Lkp01-ControlFile').output.value",
 						"type": "Expression"
 					},
+					"isSequential": true,
 					"activities": [
 						{
 							"name": "If Condition1",
@@ -178,18 +180,24 @@
 												"type": "DataFlowReference",
 												"parameters": {
 													"df_FileName": {
-														"value": "'@{item().FileName}'",
+														"value": "@{item().FileName}",
 														"type": "Expression"
 													},
 													"df_Container": {
-														"value": "'@{pipeline().parameters.blobContainer}'",
+														"value": "@{pipeline().parameters.blobContainer}",
 														"type": "Expression"
 													}
 												},
 												"datasetParameters": {
 													"dfSource1": {
-														"src_filename": "$$df_FileName",
-														"src_container": "$$df_Container"
+														"src_filename": {
+															"value": "@item().FileName",
+															"type": "Expression"
+														},
+														"src_container": {
+															"value": "@pipeline().parameters.blobContainer",
+															"type": "Expression"
+														}
 													}
 												}
 											},
