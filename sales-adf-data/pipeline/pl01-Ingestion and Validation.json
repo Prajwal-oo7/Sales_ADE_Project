@@ -112,7 +112,7 @@
 					"isSequential": true,
 					"activities": [
 						{
-							"name": "If Condition1",
+							"name": "If1-FileExists",
 							"type": "IfCondition",
 							"dependsOn": [],
 							"userProperties": [],
@@ -219,7 +219,7 @@
 							"type": "IfCondition",
 							"dependsOn": [
 								{
-									"activity": "If Condition1",
+									"activity": "If1-FileExists",
 									"dependencyConditions": [
 										"Succeeded"
 									]
