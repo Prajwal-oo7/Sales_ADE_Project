@@ -6,6 +6,18 @@
 			"type": "string",
 			"metadata": "Data Factory name",
 			"defaultValue": "ADF-Sales-ADE-Project-PrajwalPokharkar"
+		},
+		"ls_blobpp01_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'ls_blobpp01'"
+		},
+		"ls_AKV_ProjectPP_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://KV-SalesProject-PrajwalP.vault.azure.net/"
+		},
+		"SHIR-01_properties_typeProperties_linkedInfo_resourceId": {
+			"type": "string",
+			"defaultValue": "/subscriptions/594b1ace-a219-4ee2-a630-9840a1563cd9/resourcegroups/rg-dev-centralindia-p001/providers/Microsoft.DataFactory/factories/adf-dev-centralindia-p001/integrationruntimes/SHIR-01"
 		}
 	},
 	"variables": {
@@ -13,35 +25,43 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
+			"name": "[concat(parameters('factoryName'), '/ls_AKV_ProjectPP')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"activities": [
-					{
-						"name": "Set variable1",
-						"type": "SetVariable",
-						"dependsOn": [],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "x",
-							"value": "1"
-						}
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('ls_AKV_ProjectPP_properties_typeProperties_baseUrl')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_blobpp01')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('ls_blobpp01_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SHIR-01')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {
+					"linkedInfo": {
+						"resourceId": "[parameters('SHIR-01_properties_typeProperties_linkedInfo_resourceId')]",
+						"authorizationType": "Rbac"
 					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"variables": {
-					"x": {
-						"type": "String"
-					}
-				},
-				"annotations": []
+				}
 			},
 			"dependsOn": []
 		}
