@@ -5,6 +5,8 @@
 			{
 				"name": "Exe-pl01",
 				"type": "ExecutePipeline",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"secureInput": false
@@ -23,7 +25,14 @@
 				"type": "ExecutePipeline",
 				"state": "Inactive",
 				"onInactiveMarkAs": "Succeeded",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Exe-pl01",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
 				"policy": {
 					"secureInput": false
 				},
@@ -43,8 +52,10 @@
 				}
 			},
 			{
-				"name": "Set variable1 error",
+				"name": "SetVar01-pl01_ValidationError",
 				"type": "SetVariable",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Exe-pl01",
@@ -69,6 +80,8 @@
 			{
 				"name": "Set variable1 file list",
 				"type": "SetVariable",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Exe-pl01",
