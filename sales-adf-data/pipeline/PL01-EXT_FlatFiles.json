@@ -1,5 +1,5 @@
 {
-	"name": "PL01-FullLoad_IngestionValidation",
+	"name": "PL01-EXT_FlatFiles",
 	"properties": {
 		"folder": {
 			"name": "RetailSales-project"
