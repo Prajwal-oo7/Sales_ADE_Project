@@ -1,0 +1,9 @@
+{
+	"name": "PL01-FullLoad_IngestionValidation",
+	"properties": {
+		"folder": {
+			"name": "RetailSales-project"
+		},
+		"annotations": []
+	}
+}

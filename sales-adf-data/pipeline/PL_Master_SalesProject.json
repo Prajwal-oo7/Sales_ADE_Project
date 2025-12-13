@@ -1,0 +1,27 @@
+{
+	"name": "PL_Master_SalesProject",
+	"properties": {
+		"activities": [
+			{
+				"name": "ExePL01-FullLoad_IngestionValidation",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL01-FullLoad_IngestionValidation",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "RetailSales-project"
+		},
+		"annotations": []
+	}
+}
