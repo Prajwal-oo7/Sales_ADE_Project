@@ -1,0 +1,46 @@
+{
+	"name": "DS_ABLB_SRC_Delimited_SalesFlatFiles",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_BLOB_SalesPP01",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"src_container_name": {
+				"type": "string"
+			},
+			"src_file_name": {
+				"type": "string"
+			},
+			"src_file_delimiter": {
+				"type": "string"
+			},
+			"src_file_type": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@dataset().src_file_name",
+					"type": "Expression"
+				},
+				"container": {
+					"value": "@dataset().src_container_name",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": {
+				"value": "@dataset().src_file_delimiter",
+				"type": "Expression"
+			},
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}

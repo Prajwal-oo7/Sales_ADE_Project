@@ -1,6 +1,123 @@
 {
 	"name": "PL01-EXT_FlatFiles",
 	"properties": {
+		"activities": [
+			{
+				"name": "ACT_LKP01_Read_configJSON",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "DS_ABLB_JSON_config_salesFaltFiles",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ACT_ForEach01_FileInConfig",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "ACT_LKP01_Read_configJSON",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('ACT_LKP_Read_configJSON').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "ACT_SetVar01_Timestamp",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "v_Timestamp",
+								"value": {
+									"value": "@formatDateTime(convertFromUtc(utcNow(),'India Standard Time'\r\n),'yyyyMMddHHmmss')\r\n",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "ACT_COPY01_BlobSalesFlatFiles_AdlsRaw",
+							"type": "Copy",
+							"dependsOn": [
+								{
+									"activity": "ACT_SetVar01_Timestamp",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobStorageReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_ABLB_SRC_Delimited_SalesFlatFiles",
+									"type": "DatasetReference"
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"variables": {
+			"v_Timestamp": {
+				"type": "String"
+			}
+		},
 		"folder": {
 			"name": "RetailSales-project"
 		},

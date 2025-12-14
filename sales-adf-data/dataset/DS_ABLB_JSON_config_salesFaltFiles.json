@@ -1,0 +1,41 @@
+{
+	"name": "DS_ABLB_JSON_config_salesFaltFiles",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_BLOB_SalesPP01",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "config_salesFlatFiles.json",
+				"container": "sales"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"src_container_name": {
+					"type": "string"
+				},
+				"src_file_name": {
+					"type": "string"
+				},
+				"src_file_delimiter": {
+					"type": "string"
+				},
+				"src_file_type": {
+					"type": "string"
+				},
+				"sink_folder_path": {
+					"type": "string"
+				},
+				"sink_file_name": {
+					"type": "string"
+				}
+			}
+		}
+	}
+}
