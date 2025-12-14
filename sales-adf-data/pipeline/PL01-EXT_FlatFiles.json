@@ -87,7 +87,16 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
-							"userProperties": [],
+							"userProperties": [
+								{
+									"name": "Source",
+									"value": "@{item().src_container_name}//@{item().src_file_name}"
+								},
+								{
+									"name": "Destination",
+									"value": "raw-sales/@{item().sink_folder_path}/@{concat(item().sink_file_name,'_',variables('v_Timestamp'),'.csv')}"
+								}
+							],
 							"typeProperties": {
 								"source": {
 									"type": "DelimitedTextSource",
@@ -100,12 +109,65 @@
 										"type": "DelimitedTextReadSettings"
 									}
 								},
-								"enableStaging": false
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".csv"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
 							},
 							"inputs": [
 								{
 									"referenceName": "DS_ABLB_SRC_Delimited_SalesFlatFiles",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"src_container_name": {
+											"value": "@item().src_container_name",
+											"type": "Expression"
+										},
+										"src_file_name": {
+											"value": "@item().src_file_name",
+											"type": "Expression"
+										},
+										"src_file_delimiter": {
+											"value": "@item().src_file_delimiter",
+											"type": "Expression"
+										},
+										"src_file_type": {
+											"value": "@item().src_file_type",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_ADLS_CSV_SINK_SalesRawTarget",
+									"type": "DatasetReference",
+									"parameters": {
+										"sink_folder_path": {
+											"value": "@item().sink_folder_path",
+											"type": "Expression"
+										},
+										"sink_file_name": {
+											"value": "@concat(item().sink_file_name,'_',variables('v_Timestamp'),'.csv')",
+											"type": "Expression"
+										}
+									}
 								}
 							]
 						}

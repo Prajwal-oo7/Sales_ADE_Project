@@ -1,0 +1,38 @@
+{
+	"name": "DS_ADLS_CSV_SINK_SalesRawTarget",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ADLS_SalesPP01",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"sink_folder_path": {
+				"type": "string"
+			},
+			"sink_file_name": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().sink_file_name",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().sink_folder_path",
+					"type": "Expression"
+				},
+				"fileSystem": "raw-sales"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
