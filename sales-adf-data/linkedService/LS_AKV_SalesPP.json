@@ -1,0 +1,10 @@
+{
+	"name": "LS_AKV_SalesPP",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://KV-SalesProject-PrajwalP.vault.azure.net/"
+		}
+	}
+}
