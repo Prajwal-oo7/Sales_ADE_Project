@@ -47,7 +47,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('ACT_LKP_Read_configJSON').output.value",
+						"value": "@activity('ACT_LKP01_Read_configJSON').output.value",
 						"type": "Expression"
 					},
 					"isSequential": true,
