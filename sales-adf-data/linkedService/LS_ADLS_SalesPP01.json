@@ -1,0 +1,19 @@
+{
+	"name": "LS_ADLS_SalesPP01",
+	"properties": {
+		"description": "https://adlssalesprojectpp01.dfs.core.windows.net",
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://adlssalesprojectpp01.dfs.core.windows.net",
+			"accountKey": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "LS_AKV_SalesPP",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "adlssalespp01-key1"
+			}
+		}
+	}
+}
