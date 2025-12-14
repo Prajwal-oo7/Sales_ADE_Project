@@ -1,0 +1,21 @@
+{
+	"name": "LS_SQLSERVER_SalesDB",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"server": "DESKTOP-6EHC0DT\\SQLEXPRESS",
+			"database": "SALES",
+			"encrypt": "mandatory",
+			"trustServerCertificate": true,
+			"authenticationType": "SQL",
+			"userName": "sa",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI5MDZkZjlmYS05M2MxLTQ0Y2ItODVkMS1lMWMxNDEwNjA1ZGQiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "SHIR-Sales",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
