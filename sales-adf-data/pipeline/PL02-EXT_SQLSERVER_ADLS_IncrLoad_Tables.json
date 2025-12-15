@@ -1,0 +1,9 @@
+{
+	"name": "PL02-EXT_SQLSERVER_ADLS_IncrLoad_Tables",
+	"properties": {
+		"folder": {
+			"name": "RetailSales-project"
+		},
+		"annotations": []
+	}
+}
