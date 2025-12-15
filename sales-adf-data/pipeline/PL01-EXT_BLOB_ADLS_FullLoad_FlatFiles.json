@@ -102,8 +102,8 @@
 									"type": "DelimitedTextSource",
 									"additionalColumns": [
 										{
-											"name": "hcfg",
-											"value": ""
+											"name": "SOURCE_ID",
+											"value": "BLB0001"
 										}
 									],
 									"storeSettings": {
