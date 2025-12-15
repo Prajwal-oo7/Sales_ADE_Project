@@ -104,6 +104,20 @@
 										{
 											"name": "SOURCE_ID",
 											"value": "BLB0001"
+										},
+										{
+											"name": "DATA_DATE",
+											"value": {
+												"value": "@formatDateTime(convertFromUtc(utcNow(),'India Standarad Time'),'dd-MM-yyyy')",
+												"type": "Expression"
+											}
+										},
+										{
+											"name": "UPDATE_DATE",
+											"value": {
+												"value": "@formatDateTime(convertFromUtc(utcNow(),'India Standarad Time'),'dd-MM-yyyy')",
+												"type": "Expression"
+											}
 										}
 									],
 									"storeSettings": {
