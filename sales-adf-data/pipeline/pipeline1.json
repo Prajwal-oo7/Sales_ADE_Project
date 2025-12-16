@@ -1,0 +1,391 @@
+{
+	"name": "pipeline1",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lkp01-ControlFile",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "GetMD1-FileList",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"fieldList": [],
+					"storeSettings": {
+						"type": "AzureBlobStorageReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "Filter1",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "GetMD1-FileList",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GetMD1-FileList').output.childItems",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@not(equals(item().name,'Control_File.csv'))",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Filter1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Lkp01-ControlFile",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Lkp01-ControlFile').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "If1-FileExists",
+							"type": "IfCondition",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@contains(string(activity('Filter1').output.Value), item().FileName)\n",
+									"type": "Expression"
+								},
+								"ifTrueActivities": [
+									{
+										"name": "exe-Df01_CountRecords",
+										"type": "ExecuteDataFlow",
+										"dependsOn": [
+											{
+												"activity": "SetVar01-isFileExist",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"compute": {
+												"coreCount": 8,
+												"computeType": "General"
+											},
+											"traceLevel": "None",
+											"cacheSinks": {
+												"firstRowOnly": true
+											}
+										}
+									},
+									{
+										"name": "SetVar01-isFileExist",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "isFileExist",
+											"value": "True"
+										}
+									},
+									{
+										"name": "SetVar02-ActualRecordCount",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "exe-Df01_CountRecords",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "ActualRecordCount",
+											"value": {
+												"value": "@string(activity('exe-Df01_CountRecords').output.runStatus.output.sink1.value[0].recordCount)",
+												"type": "Expression"
+											}
+										}
+									}
+								]
+							}
+						},
+						{
+							"name": "If2-CountMatches",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "If1-FileExists",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@and(equals(string(variables('isFileExist')),string('True')),equals(int(string(variables('ActualRecordCount'))),int(item().RecordCount) ) )",
+									"type": "Expression"
+								},
+								"ifFalseActivities": [
+									{
+										"name": "SetVar03-IsValidationFailed",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "isValidationFailed",
+											"value": "True"
+										}
+									},
+									{
+										"name": "SetVar04-ValidationErrorMsg",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "SetVar03-IsValidationFailed",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "ValidationErrorMsg",
+											"value": {
+												"value": "@concat('FileName: ',item().FileName,\n    '\\n Valid Record Count: ',string(item().RecordCount),\n    '\\n File Exists: ',string(variables('isFileExist')),\n    '\\n Record Count Mismatched!',\n    '\\n Actual Record Count: ', string(variables('ActualRecordCount')))",
+												"type": "Expression"
+											}
+										}
+									},
+									{
+										"name": "SetVar06-returnValidationStatusAndErrorMsg",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "SetVar04-ValidationErrorMsg",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "pipelineReturnValue",
+											"value": [
+												{
+													"key": "returnValidationErrorMsg",
+													"value": {
+														"type": "Expression",
+														"content": "@variables('ValidationErrorMsg')"
+													}
+												},
+												{
+													"key": "returnIsValidationFailed",
+													"value": {
+														"type": "Expression",
+														"content": "@variables('isValidationFailed')"
+													}
+												}
+											],
+											"setSystemVariable": true
+										}
+									}
+								],
+								"ifTrueActivities": [
+									{
+										"name": "AppendVar01-ValidFileList",
+										"type": "AppendVariable",
+										"dependsOn": [],
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "ValidFileList",
+											"value": {
+												"value": "@item().FileName",
+												"type": "Expression"
+											}
+										}
+									}
+								]
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "If3-isValidationFailed",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "ForEach1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(string(variables('isValidationFailed')),string('True') )",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "SetVar05-returnValidFileList",
+							"description": "pl return value-valid file list",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "pipelineReturnValue",
+								"value": [
+									{
+										"key": "returnValidFileList",
+										"value": {
+											"type": "Expression",
+											"content": "@variables('ValidFileList')"
+										}
+									}
+								],
+								"setSystemVariable": true
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "Fail-ValidationPlFail",
+							"type": "Fail",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"message": {
+									"value": "@concat('Validation Failed: ', variables('ValidationErrorMsg'))",
+									"type": "Expression"
+								},
+								"errorCode": "01"
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"blobContainer": {
+				"type": "string",
+				"defaultValue": "healthcare-flatfiles"
+			}
+		},
+		"variables": {
+			"isValidationFailed": {
+				"type": "String"
+			},
+			"isFileExist": {
+				"type": "String",
+				"defaultValue": "False"
+			},
+			"ValidationErrorMsg": {
+				"type": "String"
+			},
+			"ValidFileList": {
+				"type": "Array"
+			},
+			"ActualRecordCount": {
+				"type": "String",
+				"defaultValue": "N/A"
+			}
+		},
+		"folder": {
+			"name": "Healthcare Mini Project-01"
+		},
+		"annotations": []
+	}
+}
