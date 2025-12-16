@@ -99,7 +99,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@equals(activity('LKP02-Get max value of watermark col').output.firstRow.max_processed_value, item().last_processed_value)",
+									"value": "@equals(string(activity('LKP02-Get max value of watermark col').output.firstRow.max_processed_value),string(item().last_processed_value))",
 									"type": "Expression"
 								},
 								"ifFalseActivities": [
