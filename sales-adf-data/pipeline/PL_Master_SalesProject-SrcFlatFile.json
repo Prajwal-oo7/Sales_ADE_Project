@@ -12,7 +12,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "PL01-FullLoad_IngestionValidation",
+						"referenceName": "PL01-EXT_BLOB_ADLS_FullLoad_FlatFiles",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true
