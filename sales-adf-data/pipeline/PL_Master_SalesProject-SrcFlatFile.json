@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "ExePL01-FullLoad_IngestionValidation",
+				"name": "ACT_EXEPL01-FullLoad_IngestionValidation",
 				"type": "ExecutePipeline",
 				"dependsOn": [],
 				"policy": {
@@ -13,6 +13,22 @@
 				"typeProperties": {
 					"pipeline": {
 						"referenceName": "PL01-EXT_BLOB_ADLS_FullLoad_FlatFiles",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "ACT_EXEPL02-EXT_SqlServer_Sales_IncrLoad",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL02-EXT_SQLSERVER_ADLS_IncrLoad_Tables",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true

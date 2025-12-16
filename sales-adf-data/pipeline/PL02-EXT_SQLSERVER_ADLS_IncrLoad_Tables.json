@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "LKP01-Read sales_watermarkTB",
+				"name": "ACT_LKP01-Read sales_watermarkTB",
 				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
@@ -29,11 +29,11 @@
 				}
 			},
 			{
-				"name": "ForEach1",
+				"name": "ACT_ForEach1",
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "LKP01-Read sales_watermarkTB",
+						"activity": "ACT_LKP01-Read sales_watermarkTB",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -48,7 +48,7 @@
 					"isSequential": true,
 					"activities": [
 						{
-							"name": "LKP02-Get max value of watermark col",
+							"name": "ACT_LKP02-Get max value of watermark col",
 							"type": "Lookup",
 							"dependsOn": [],
 							"policy": {
@@ -86,11 +86,11 @@
 							}
 						},
 						{
-							"name": "IF-lpv equals mpv",
+							"name": "ACT_IF-lpv equals mpv",
 							"type": "IfCondition",
 							"dependsOn": [
 								{
-									"activity": "LKP02-Get max value of watermark col",
+									"activity": "ACT_LKP02-Get max value of watermark col",
 									"dependencyConditions": [
 										"Succeeded"
 									]
