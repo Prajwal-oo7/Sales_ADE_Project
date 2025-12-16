@@ -134,6 +134,26 @@
 										"typeProperties": {
 											"source": {
 												"type": "SqlServerSource",
+												"additionalColumns": [
+													{
+														"name": "SOURCE_ID",
+														"value": "SQL0001"
+													},
+													{
+														"name": "Data_Date",
+														"value": {
+															"value": "@formatDateTime(convertFromUtc(utcNow(),'India Standard Time'),'dd-MM-yyyy HH:mm:ss')",
+															"type": "Expression"
+														}
+													},
+													{
+														"name": "Update_Date",
+														"value": {
+															"value": "@formatDateTime(convertFromUtc(utcNow(),'India Standard Time'),'dd-MM-yyyy HH:mm:ss')",
+															"type": "Expression"
+														}
+													}
+												],
 												"sqlReaderQuery": {
 													"value": "select * from @{item().src_schema}.@{item().src_table} where @{item().watermark_colname}>'@{item().last_processed_value}'",
 													"type": "Expression"
