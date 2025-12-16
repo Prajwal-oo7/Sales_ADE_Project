@@ -1,6 +1,94 @@
 {
 	"name": "PL02-EXT_SQLSERVER_ADLS_IncrLoad_Tables",
 	"properties": {
+		"activities": [
+			{
+				"name": "LKP01-Read sales_watermarkTB",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select * from dbo.sales_watermarkTB where is_active=1;",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_ASQL_sales_watermarkTB",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "LKP01-Read sales_watermarkTB",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('LKP01-Read sales_watermarkTB').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "LKP02-Get max value of watermark col",
+							"type": "Lookup",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "SqlServerSource",
+									"sqlReaderQuery": {
+										"value": "select convert(int, max(@{item().watermark_colname})) as max_processed_value from @{item().src_schema}.@{item().src_table}",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "DS_SQLSERVER_SalesDB_DynamicTB",
+									"type": "DatasetReference",
+									"parameters": {
+										"src_schema": {
+											"value": "@item().src_schema",
+											"type": "Expression"
+										},
+										"src_table": {
+											"value": "@item().src_table",
+											"type": "Expression"
+										}
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		],
 		"folder": {
 			"name": "RetailSales-project"
 		},

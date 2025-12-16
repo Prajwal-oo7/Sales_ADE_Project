@@ -1,0 +1,55 @@
+{
+	"name": "DS_ASQL_sales_watermarkTB",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ASQL_SalesProjectDB",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "WATERMARK_ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "SRC_SCHEMA",
+				"type": "varchar"
+			},
+			{
+				"name": "SRC_TABLE",
+				"type": "varchar"
+			},
+			{
+				"name": "SINK_CONTAINER",
+				"type": "varchar"
+			},
+			{
+				"name": "SINK_FOLDER_PATH",
+				"type": "varchar"
+			},
+			{
+				"name": "SINK_FILE_NAME",
+				"type": "varchar"
+			},
+			{
+				"name": "WATERMARK_COLNAME",
+				"type": "varchar"
+			},
+			{
+				"name": "LAST_PROCESSED_VALUE",
+				"type": "varchar"
+			},
+			{
+				"name": "IS_ACTIVE",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "sales_watermarkTB"
+		}
+	}
+}

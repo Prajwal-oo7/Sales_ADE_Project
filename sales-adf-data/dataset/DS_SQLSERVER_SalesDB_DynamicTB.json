@@ -1,0 +1,30 @@
+{
+	"name": "DS_SQLSERVER_SalesDB_DynamicTB",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_SQLSERVER_SalesDB",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"src_schema": {
+				"type": "string"
+			},
+			"src_table": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().src_schema",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().src_table",
+				"type": "Expression"
+			}
+		}
+	}
+}
