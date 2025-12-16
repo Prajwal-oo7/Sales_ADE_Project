@@ -63,7 +63,7 @@
 								"source": {
 									"type": "SqlServerSource",
 									"sqlReaderQuery": {
-										"value": "select convert(int, max(@{item().watermark_colname})) as max_processed_value from @{item().src_schema}.@{item().src_table}",
+										"value": "select max(@{item().watermark_colname}) as max_processed_value from @{item().src_schema}.@{item().src_table}",
 										"type": "Expression"
 									},
 									"queryTimeout": "02:00:00",
