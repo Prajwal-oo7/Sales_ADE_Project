@@ -274,6 +274,50 @@
 											"referenceName": "LS_ASQL_SalesProjectDB",
 											"type": "LinkedServiceReference"
 										}
+									},
+									{
+										"name": "ACT_SetVar02_isActivityFailed",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "COPY-IncrementalData_From_SqlServer_To_AdlsRaw",
+												"dependencyConditions": [
+													"Failed"
+												]
+											},
+											{
+												"activity": "STPRC_usp_upd_sales_watermarkTB",
+												"dependencyConditions": [
+													"Failed"
+												]
+											}
+										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "v_isActivityFailed",
+											"value": "True"
+										}
+									},
+									{
+										"name": "ACT_AppVar_v_ErrorMsg",
+										"type": "AppendVariable",
+										"dependsOn": [
+											{
+												"activity": "ACT_SetVar02_isActivityFailed",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "v_ErrorMsg",
+											"value": ""
+										}
 									}
 								]
 							}
@@ -285,6 +329,12 @@
 		"variables": {
 			"v_Timestamp": {
 				"type": "String"
+			},
+			"v_isActivityFailed": {
+				"type": "String"
+			},
+			"v_ErrorMsg": {
+				"type": "Array"
 			}
 		},
 		"folder": {
