@@ -188,7 +188,7 @@
 							]
 						},
 						{
-							"name": "If Condition1",
+							"name": "ACT_IF01-srcCount_equals_sinkCount",
 							"type": "IfCondition",
 							"dependsOn": [
 								{
@@ -206,7 +206,7 @@
 								},
 								"ifFalseActivities": [
 									{
-										"name": "Copy data1-failed file",
+										"name": "ACT_COPY02-Adls_Target_Failure",
 										"type": "Copy",
 										"dependsOn": [],
 										"policy": {
@@ -292,11 +292,11 @@
 										]
 									},
 									{
-										"name": "Set variable1",
+										"name": "ACT_SetVar02-v_isActivityFailed",
 										"type": "SetVariable",
 										"dependsOn": [
 											{
-												"activity": "Delete1-failed files",
+												"activity": "ACT_DLT01-TargetFailedFiles",
 												"dependencyConditions": [
 													"Succeeded"
 												]
@@ -308,16 +308,16 @@
 										},
 										"userProperties": [],
 										"typeProperties": {
-											"variableName": "is_ActivityFailed",
+											"variableName": "v_isActivityFailed",
 											"value": "True"
 										}
 									},
 									{
-										"name": "Delete1-failed files",
+										"name": "ACT_DLT01-TargetFailedFiles",
 										"type": "Delete",
 										"dependsOn": [
 											{
-												"activity": "Copy data1-failed file",
+												"activity": "ACT_COPY02-Adls_Target_Failure",
 												"dependencyConditions": [
 													"Succeeded"
 												]
@@ -350,11 +350,11 @@
 										}
 									},
 									{
-										"name": "Append variable2",
+										"name": "ACT_AppVar01-v_ErrorMsg",
 										"type": "AppendVariable",
 										"dependsOn": [
 											{
-												"activity": "Set variable1",
+												"activity": "ACT_SetVar02-v_isActivityFailed",
 												"dependencyConditions": [
 													"Succeeded"
 												]
@@ -373,7 +373,7 @@
 							}
 						},
 						{
-							"name": "Set variable2",
+							"name": "ACT_SetVar03-v_isActivityFailed",
 							"type": "SetVariable",
 							"dependsOn": [
 								{
@@ -389,16 +389,16 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"variableName": "is_ActivityFailed",
+								"variableName": "v_isActivityFailed",
 								"value": "True"
 							}
 						},
 						{
-							"name": "Append variable1",
+							"name": "ACT_AppVar02-v_ErrorMsg",
 							"type": "AppendVariable",
 							"dependsOn": [
 								{
-									"activity": "Set variable2",
+									"activity": "ACT_SetVar03-v_isActivityFailed",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -417,7 +417,7 @@
 				}
 			},
 			{
-				"name": "If Condition2",
+				"name": "ACT_IF02_isActivityFailed",
 				"type": "IfCondition",
 				"dependsOn": [
 					{
@@ -430,16 +430,16 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@equals(variables('is_ActivityFailed'),'True' )",
+						"value": "@equals(variables('v_isActivityFailed'),'True' )",
 						"type": "Expression"
 					},
 					"ifTrueActivities": [
 						{
-							"name": "Fail1",
+							"name": "ACT_Fail01-Fail_PL01",
 							"type": "Fail",
 							"dependsOn": [
 								{
-									"activity": "Set variable3",
+									"activity": "ACT_SetVar04-pl01rv_errorMsg_status",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -448,14 +448,14 @@
 							"userProperties": [],
 							"typeProperties": {
 								"message": {
-									"value": "@variables('v_ErrorMsg')",
+									"value": "@string(join(variables('v_ErrorMsg'), '\\n'))",
 									"type": "Expression"
 								},
 								"errorCode": "0001"
 							}
 						},
 						{
-							"name": "Set variable3",
+							"name": "ACT_SetVar04-pl01rv_errorMsg_status",
 							"type": "SetVariable",
 							"dependsOn": [],
 							"policy": {
@@ -492,12 +492,15 @@
 			"v_Timestamp": {
 				"type": "String"
 			},
-			"is_ActivityFailed": {
+			"v_isActivityFailed": {
 				"type": "String",
 				"defaultValue": "False"
 			},
 			"v_ErrorMsg": {
-				"type": "Array"
+				"type": "Array",
+				"defaultValue": [
+					"Null"
+				]
 			}
 		},
 		"folder": {
