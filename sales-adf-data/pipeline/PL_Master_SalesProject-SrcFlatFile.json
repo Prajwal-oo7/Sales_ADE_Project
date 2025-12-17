@@ -60,7 +60,13 @@
 						"referenceName": "PL03-EmailAlert",
 						"type": "PipelineReference"
 					},
-					"waitOnCompletion": true
+					"waitOnCompletion": true,
+					"parameters": {
+						"plp_errorMsg": {
+							"value": "@activity('ACT_EXEPL01-FullLoad_IngestionValidation').output.pipelineReturnValue.pl01rv_errorMsg",
+							"type": "Expression"
+						}
+					}
 				}
 			}
 		],

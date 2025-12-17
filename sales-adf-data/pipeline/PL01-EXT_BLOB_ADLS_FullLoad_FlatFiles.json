@@ -441,7 +441,14 @@
 						{
 							"name": "Fail1",
 							"type": "Fail",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "Set variable3",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"userProperties": [],
 							"typeProperties": {
 								"message": {
@@ -449,6 +456,36 @@
 									"type": "Expression"
 								},
 								"errorCode": "0001"
+							}
+						},
+						{
+							"name": "Set variable3",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "pipelineReturnValue",
+								"value": [
+									{
+										"key": "pl01rv_errorMsg",
+										"value": {
+											"type": "Expression",
+											"content": "@string(join(variables('v_ErrorMsg'), '\\n'))"
+										}
+									},
+									{
+										"key": "pl01rv_status",
+										"value": {
+											"type": "String",
+											"content": "Failed"
+										}
+									}
+								],
+								"setSystemVariable": true
 							}
 						}
 					]
