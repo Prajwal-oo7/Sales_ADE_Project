@@ -364,7 +364,7 @@
 										"typeProperties": {
 											"variableName": "v_ErrorMsg",
 											"value": {
-												"value": "@concat('File Name: ',item().src_file_name,\n    '\\n Validation Failed: records not copied fully! \\n Source Record count: ',activity('ACT_COPY01_BlobSalesFlatFiles_AdlsRaw').output.rowsRead,\n    '\\n Sink Record Count: ',activity('ACT_COPY01_BlobSalesFlatFiles_AdlsRaw').output.rowsCopied)",
+												"value": "@concat('\\n File Name: ',item().src_file_name,\n    '\\n Validation Failed: records not copied fully! \\n Source Record count: ',activity('ACT_COPY01_BlobSalesFlatFiles_AdlsRaw').output.rowsRead,\n    '\\n Sink Record Count: ',activity('ACT_COPY01_BlobSalesFlatFiles_AdlsRaw').output.rowsCopied,\n    '\\n')",
 												"type": "Expression"
 											}
 										}
