@@ -33,6 +33,35 @@
 					},
 					"waitOnCompletion": true
 				}
+			},
+			{
+				"name": "ACT_EXEPL03-EmailAlert",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ACT_EXEPL01-FullLoad_IngestionValidation",
+						"dependencyConditions": [
+							"Failed"
+						]
+					},
+					{
+						"activity": "ACT_EXEPL02-EXT_SqlServer_Sales_IncrLoad",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL03-EmailAlert",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
 			}
 		],
 		"folder": {

@@ -352,8 +352,103 @@
 												"enablePartitionDiscovery": false
 											}
 										}
+									},
+									{
+										"name": "Append variable2",
+										"type": "AppendVariable",
+										"dependsOn": [
+											{
+												"activity": "Set variable1",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "v_ErrorMsg",
+											"value": {
+												"value": "@concat('Validation Failed: records not copied fully! \\n Source Record count: ',activity('ACT_COPY01_BlobSalesFlatFiles_AdlsRaw').output.rowsRead,\n    '\\n Sink Record Count: ',activity('ACT_COPY01_BlobSalesFlatFiles_AdlsRaw').output.rowsCopied)",
+												"type": "Expression"
+											}
+										}
 									}
 								]
+							}
+						},
+						{
+							"name": "Set variable2",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "ACT_COPY01_BlobSalesFlatFiles_AdlsRaw",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "is_ActivityFailed",
+								"value": "True"
+							}
+						},
+						{
+							"name": "Append variable1",
+							"type": "AppendVariable",
+							"dependsOn": [
+								{
+									"activity": "Set variable2",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "v_ErrorMsg",
+								"value": {
+									"value": "@activity('ACT_COPY01_BlobSalesFlatFiles_AdlsRaw').error.message",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "If Condition2",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "ACT_ForEach01_FileInConfig",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(variables('is_ActivityFailed'),'True' )",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Fail1",
+							"type": "Fail",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"message": {
+									"value": "@variables('v_ErrorMsg')",
+									"type": "Expression"
+								},
+								"errorCode": "0001"
 							}
 						}
 					]
@@ -365,7 +460,11 @@
 				"type": "String"
 			},
 			"is_ActivityFailed": {
-				"type": "String"
+				"type": "String",
+				"defaultValue": "False"
+			},
+			"v_ErrorMsg": {
+				"type": "Array"
 			}
 		},
 		"folder": {
