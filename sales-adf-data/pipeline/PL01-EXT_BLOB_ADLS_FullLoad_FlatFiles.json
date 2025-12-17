@@ -497,10 +497,7 @@
 				"defaultValue": "False"
 			},
 			"v_ErrorMsg": {
-				"type": "Array",
-				"defaultValue": [
-					"Null"
-				]
+				"type": "Array"
 			}
 		},
 		"folder": {
