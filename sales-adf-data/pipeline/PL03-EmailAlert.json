@@ -27,6 +27,9 @@
 		"parameters": {
 			"plp_errorMsg": {
 				"type": "string"
+			},
+			"plp_status": {
+				"type": "string"
 			}
 		},
 		"folder": {
