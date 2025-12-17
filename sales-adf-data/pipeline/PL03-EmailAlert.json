@@ -18,7 +18,7 @@
 					"method": "POST",
 					"url": "https://prod-22.centralindia.logic.azure.com:443/workflows/30a1424665eb45ff9ea326f516987a6c/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=YFp7ksKnI1OjfhlmCKqwsqcCHds5ZM1CchcIDD_n4vA",
 					"body": {
-						"value": "{\n\"DataFactoryName\":\"@{pipeline().DataFactory}\",\n\"EmailTo\":\"prajwal007042001@gmail.com\",\n\"Subject\":\"Pipeline is Failed\",\n\"PipelineName\":\"@{pipeline().Pipeline}\",\n\"FailedActivity\": \"ACT_EXEPL01-EXT_BLOB_ADLS\"\n\"ChildPipelineName\":\"PL01-EXT_BLOB_ADLS\",\n\"status\":\"@activity('PL').status}\",\n\"ErrorMessage\":\"The ADF pipeline is completed, no error found.\"\n}",
+						"value": "{\n\"DataFactoryName\":\"@{pipeline().DataFactory}\",\n\"EmailTo\":\"prajwal007042001@gmail.com\",\n\"Subject\":\"Pipeline is Failed\",\n\"PipelineName\":\"@{pipeline().Pipeline}\",\n\"FailedActivity\": \"ACT_EXEPL01-EXT_BLOB_ADLS\"\n\"ChildPipelineName\":\"PL01-EXT_BLOB_ADLS\",\n\"status\":\"@{activity('ACT_EXEPL01-FullLoad_IngestionValidation').status}\",\n\"ErrorMessage\":\"The ADF pipeline is completed, no error found.\"\n}",
 						"type": "Expression"
 					}
 				}
