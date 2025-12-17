@@ -300,7 +300,7 @@
 										"type": "SetVariable",
 										"dependsOn": [
 											{
-												"activity": "Copy data1-failed file",
+												"activity": "Delete1-failed files",
 												"dependencyConditions": [
 													"Succeeded"
 												]
@@ -314,6 +314,43 @@
 										"typeProperties": {
 											"variableName": "is_ActivityFailed",
 											"value": "True"
+										}
+									},
+									{
+										"name": "Delete1-failed files",
+										"type": "Delete",
+										"dependsOn": [
+											{
+												"activity": "Copy data1-failed file",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"dataset": {
+												"referenceName": "DS_ADLS_CSV_DynamicPath",
+												"type": "DatasetReference",
+												"parameters": {
+													"container_name": "raw-sales",
+													"folder_path": "@item().sink_folder_path",
+													"file_name": "@concat(item().sink_file_name,'_',variables('v_Timestamp'),'.csv')"
+												}
+											},
+											"enableLogging": false,
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": false,
+												"enablePartitionDiscovery": false
+											}
 										}
 									}
 								]
