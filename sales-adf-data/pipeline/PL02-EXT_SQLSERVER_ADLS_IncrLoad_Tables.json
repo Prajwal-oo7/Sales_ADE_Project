@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "ACT_LKP01-Read sales_watermarkTB",
+				"name": "ACT_LKP01-Read_sales_watermarkTB",
 				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
@@ -29,11 +29,11 @@
 				}
 			},
 			{
-				"name": "ACT_ForEach1",
+				"name": "ACT_ForEach01-iterateOverWatermarkTB",
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "ACT_LKP01-Read sales_watermarkTB",
+						"activity": "ACT_LKP01-Read_sales_watermarkTB",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -42,13 +42,13 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('ACT_LKP01-Read sales_watermarkTB').output.value",
+						"value": "@activity('ACT_LKP01-Read_sales_watermarkTB').output.value",
 						"type": "Expression"
 					},
 					"isSequential": true,
 					"activities": [
 						{
-							"name": "ACT_LKP02-Get max value of watermark col",
+							"name": "ACT_LKP02-Get_mpv_of_watermark_col",
 							"type": "Lookup",
 							"dependsOn": [],
 							"policy": {
@@ -86,11 +86,11 @@
 							}
 						},
 						{
-							"name": "ACT_IF-lpv equals mpv",
+							"name": "ACT_IF01-lpv_equals_mpv",
 							"type": "IfCondition",
 							"dependsOn": [
 								{
-									"activity": "ACT_LKP02-Get max value of watermark col",
+									"activity": "ACT_LKP02-Get_mpv_of_watermark_col",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -99,16 +99,16 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@equals(string(activity('ACT_LKP02-Get max value of watermark col').output.firstRow.max_processed_value),string(item().last_processed_value))",
+									"value": "@equals(string(activity('ACT_LKP02-Get_mpv_of_watermark_col').output.firstRow.max_processed_value),string(item().last_processed_value))",
 									"type": "Expression"
 								},
 								"ifFalseActivities": [
 									{
-										"name": "COPY-IncrementalData_From_SqlServer_To_AdlsRaw",
+										"name": "ACT_COPY-IncrementalData_From_SqlServer_To_AdlsRaw",
 										"type": "Copy",
 										"dependsOn": [
 											{
-												"activity": "ACT_SetVar01_Timestamp",
+												"activity": "ACT_SetVar01-v_Timestamp",
 												"dependencyConditions": [
 													"Succeeded"
 												]
@@ -124,11 +124,11 @@
 										"userProperties": [
 											{
 												"name": "Source",
-												"value": "@{'<src_schema>'}.@{'<src_table>'}"
+												"value": "@{item().src_schema}.@{item().src_table}"
 											},
 											{
 												"name": "Destination",
-												"value": "raw-sales/@{concat(item().sink_folder_path,'/',formatDateTime(convertFromUtc(utcNow(),'India Standard Time'),'yyyy/MM/dd'))}/@{item().sink_file_name}"
+												"value": "raw-sales/@{concat(item().sink_folder_path,'/',formatDateTime(convertFromUtc(utcNow(),'India Standard Time'),'yyyy/MM/dd'))}/@{concat(item().src_table,'_',variables('v_Timestamp'),'.csv')}"
 											}
 										],
 										"typeProperties": {
@@ -216,7 +216,7 @@
 										]
 									},
 									{
-										"name": "ACT_SetVar01_Timestamp",
+										"name": "ACT_SetVar01-v_Timestamp",
 										"type": "SetVariable",
 										"dependsOn": [],
 										"policy": {
@@ -233,11 +233,11 @@
 										}
 									},
 									{
-										"name": "STPRC_usp_upd_sales_watermarkTB",
+										"name": "ACT_STPRC-usp_upd_sales_watermarkTB",
 										"type": "SqlServerStoredProcedure",
 										"dependsOn": [
 											{
-												"activity": "COPY-IncrementalData_From_SqlServer_To_AdlsRaw",
+												"activity": "ACT_COPY-IncrementalData_From_SqlServer_To_AdlsRaw",
 												"dependencyConditions": [
 													"Succeeded"
 												]
@@ -256,7 +256,7 @@
 											"storedProcedureParameters": {
 												"curr_lpv": {
 													"value": {
-														"value": "@activity('ACT_LKP02-Get max value of watermark col').output.firstRow.max_processed_value",
+														"value": "@string(activity('ACT_LKP02-Get_mpv_of_watermark_col').output.firstRow.max_processed_value)",
 														"type": "Expression"
 													},
 													"type": "String"
@@ -276,17 +276,17 @@
 										}
 									},
 									{
-										"name": "ACT_SetVar02_isActivityFailed",
+										"name": "ACT_SetVar02-isActivityFailed",
 										"type": "SetVariable",
 										"dependsOn": [
 											{
-												"activity": "COPY-IncrementalData_From_SqlServer_To_AdlsRaw",
+												"activity": "ACT_COPY-IncrementalData_From_SqlServer_To_AdlsRaw",
 												"dependencyConditions": [
 													"Failed"
 												]
 											},
 											{
-												"activity": "STPRC_usp_upd_sales_watermarkTB",
+												"activity": "ACT_STPRC-usp_upd_sales_watermarkTB",
 												"dependencyConditions": [
 													"Failed"
 												]
@@ -303,11 +303,11 @@
 										}
 									},
 									{
-										"name": "ACT_AppVar_v_ErrorMsg",
+										"name": "ACT_AppVar01-v_ErrorMsg",
 										"type": "AppendVariable",
 										"dependsOn": [
 											{
-												"activity": "ACT_SetVar02_isActivityFailed",
+												"activity": "ACT_SetVar02-isActivityFailed",
 												"dependencyConditions": [
 													"Succeeded"
 												]
