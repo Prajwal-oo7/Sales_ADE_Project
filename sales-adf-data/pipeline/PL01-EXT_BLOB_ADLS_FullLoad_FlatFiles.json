@@ -190,6 +190,134 @@
 									}
 								}
 							]
+						},
+						{
+							"name": "If Condition1",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "ACT_COPY01_BlobSalesFlatFiles_AdlsRaw",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@equals(activity('ACT_COPY01_BlobSalesFlatFiles_AdlsRaw').output.rowsRead,activity('ACT_COPY01_BlobSalesFlatFiles_AdlsRaw').output.rowsCopied)",
+									"type": "Expression"
+								},
+								"ifFalseActivities": [
+									{
+										"name": "Copy data1-failed file",
+										"type": "Copy",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [
+											{
+												"name": "Source",
+												"value": "@{'raw-sales'}/@{item().sink_folder_path}/@{concat(item().sink_file_name,'_',variables('v_Timestamp'),'.csv')}"
+											},
+											{
+												"name": "Destination",
+												"value": "@{'raw-sales'}/@{concat('blobpp01/Failure/', item().sink_file_name)}/@{concat(item().sink_file_name,'_',variables('v_Timestamp'),'.csv')}"
+											}
+										],
+										"typeProperties": {
+											"source": {
+												"type": "DelimitedTextSource",
+												"storeSettings": {
+													"type": "AzureBlobFSReadSettings",
+													"recursive": true,
+													"enablePartitionDiscovery": false
+												},
+												"formatSettings": {
+													"type": "DelimitedTextReadSettings"
+												}
+											},
+											"sink": {
+												"type": "DelimitedTextSink",
+												"storeSettings": {
+													"type": "AzureBlobFSWriteSettings"
+												},
+												"formatSettings": {
+													"type": "DelimitedTextWriteSettings",
+													"quoteAllText": true,
+													"fileExtension": ".txt"
+												}
+											},
+											"enableStaging": false,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "DS_ADLS_CSV_DynamicPath",
+												"type": "DatasetReference",
+												"parameters": {
+													"container_name": "raw-sales",
+													"folder_path": {
+														"value": "@item().sink_folder_path",
+														"type": "Expression"
+													},
+													"file_name": {
+														"value": "@concat(item().sink_file_name,'_',variables('v_Timestamp'),'.csv')",
+														"type": "Expression"
+													}
+												}
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DS_ADLS_CSV_DynamicPath",
+												"type": "DatasetReference",
+												"parameters": {
+													"container_name": "raw-sales",
+													"folder_path": {
+														"value": "blobpp01/Failure/@{item().sink_file_name}",
+														"type": "Expression"
+													},
+													"file_name": "@concat(item().sink_file_name,'_',variables('v_Timestamp'),'.csv')"
+												}
+											}
+										]
+									},
+									{
+										"name": "Set variable1",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "Copy data1-failed file",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "is_ActivityFailed",
+											"value": "True"
+										}
+									}
+								]
+							}
 						}
 					]
 				}
@@ -197,6 +325,9 @@
 		],
 		"variables": {
 			"v_Timestamp": {
+				"type": "String"
+			},
+			"is_ActivityFailed": {
 				"type": "String"
 			}
 		},
