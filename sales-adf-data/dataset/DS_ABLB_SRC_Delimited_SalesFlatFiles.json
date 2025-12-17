@@ -14,9 +14,6 @@
 			},
 			"src_file_delimiter": {
 				"type": "string"
-			},
-			"src_file_type": {
-				"type": "string"
 			}
 		},
 		"annotations": [],

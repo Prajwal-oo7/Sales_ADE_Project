@@ -166,10 +166,6 @@
 										"src_file_delimiter": {
 											"value": "@item().src_file_delimiter",
 											"type": "Expression"
-										},
-										"src_file_type": {
-											"value": "@item().src_file_type",
-											"type": "Expression"
 										}
 									}
 								}
