@@ -39,15 +39,9 @@
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "ACT_EXEPL01-FullLoad_IngestionValidation",
+						"activity": "ACT_SetVar01-v_isPipelineFailed",
 						"dependencyConditions": [
-							"Failed"
-						]
-					},
-					{
-						"activity": "ACT_EXEPL02-EXT_SqlServer_Sales_IncrLoad",
-						"dependencyConditions": [
-							"Failed"
+							"Succeeded"
 						]
 					}
 				],
@@ -62,14 +56,96 @@
 					},
 					"waitOnCompletion": true,
 					"parameters": {
-						"plp_errorMsg": {
-							"value": "@activity('ACT_EXEPL01-FullLoad_IngestionValidation').output.pipelineReturnValue.pl01rv_errorMsg",
+						"plp_plErrorSummary": {
+							"value": "@string(join(variables('v_plErrorList'), '\\n'))",
+							"type": "Expression"
+						},
+						"plp_isPipelineFailed": {
+							"value": "@variables('v_isPipelineFailed')",
 							"type": "Expression"
 						}
 					}
 				}
+			},
+			{
+				"name": "ACT_SetVar01-v_isPipelineFailed",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "ACT_AppVar02-v_plErrorList_copy1",
+						"dependencyConditions": [
+							"Succeeded",
+							"Failed"
+						]
+					},
+					{
+						"activity": "ACT_AppVar01-v_plErrorList",
+						"dependencyConditions": [
+							"Succeeded",
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_isPipelineFailed",
+					"value": true
+				}
+			},
+			{
+				"name": "ACT_AppVar01-v_plErrorList",
+				"type": "AppendVariable",
+				"dependsOn": [
+					{
+						"activity": "ACT_EXEPL01-FullLoad_IngestionValidation",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_plErrorList",
+					"value": {
+						"value": "@concat(\n  'Pipeline: Child Pipeline: ACT_EXEPL01-FullLoad_IngestionValidation',\n  '\\nError: ',\n  activity('ACT_EXEPL01-FullLoad_IngestionValidation').output.pipelineReturnValue.pl01rv_errorMsg\n)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "ACT_AppVar02-v_plErrorList_copy1",
+				"type": "AppendVariable",
+				"dependsOn": [
+					{
+						"activity": "ACT_EXEPL02-EXT_SqlServer_Sales_IncrLoad",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_plErrorList",
+					"value": {
+						"value": "@concat(\n  'Pipeline: Child Pipeline: ACT_EXEPL02-EXT_SqlServer_Sales_IncrLoad',\n  '\\nError: ',\nactivity('ACT_EXEPL02-EXT_SqlServer_Sales_IncrLoad').output.pipelineReturnValue.pl02rv_errorMsg\n)",
+						"type": "Expression"
+					}
+				}
 			}
 		],
+		"variables": {
+			"v_plErrorList": {
+				"type": "Array"
+			},
+			"v_isPipelineFailed": {
+				"type": "Boolean",
+				"defaultValue": false
+			}
+		},
 		"folder": {
 			"name": "RetailSales-project"
 		},
