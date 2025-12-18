@@ -555,6 +555,26 @@
 												"type": "Expression"
 											}
 										}
+									},
+									{
+										"name": "ACT_AppVar00-v_targetFileDetails",
+										"type": "AppendVariable",
+										"dependsOn": [
+											{
+												"activity": "ACT_STPRC-usp_upd_sales_watermarkTB",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "v_targetFileDetails",
+											"value": {
+												"value": "@json(\n  concat(\n    '{',\n      ' \"target_file_name\":\" ', item().src_table,'_',variables('v_Timestamp'),' .csv\", ',\n      '\"target_file_path\":\"', item().sink_folder_path,'/',formatDateTime(convertFromUtc(utcNow(),'India Standard Time'),'yyyy/MM/dd'), '\"',\n    '}'\n  )\n)\n\n",
+												"type": "Expression"
+											}
+										}
 									}
 								]
 							}
@@ -579,6 +599,31 @@
 						"value": "@variables('v_isActivityFailed')",
 						"type": "Expression"
 					},
+					"ifFalseActivities": [
+						{
+							"name": "ACT_SetVar06-pl01rv_targetFileDetails",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "pipelineReturnValue",
+								"value": [
+									{
+										"key": "pl02rv_targetFileDetails",
+										"value": {
+											"type": "Expression",
+											"content": "@string(variables('v_targetFileDetails'))"
+										}
+									}
+								],
+								"setSystemVariable": true
+							}
+						}
+					],
 					"ifTrueActivities": [
 						{
 							"name": "ACT_Fail01-Fail_PL01",
@@ -647,6 +692,9 @@
 			},
 			"v_isCopySuccessful": {
 				"type": "Boolean"
+			},
+			"v_targetFileDetails": {
+				"type": "Array"
 			}
 		},
 		"folder": {

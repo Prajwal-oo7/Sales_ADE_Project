@@ -141,13 +141,13 @@
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "ACT_EXEPL01-FullLoad_IngestionValidation",
+						"activity": "ForEach1",
 						"dependencyConditions": [
 							"Succeeded"
 						]
 					},
 					{
-						"activity": "ACT_EXEPL02-EXT_SqlServer_Sales_IncrLoad",
+						"activity": "ForEach1_copy1",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -164,6 +164,76 @@
 					},
 					"waitOnCompletion": true
 				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "ACT_EXEPL01-FullLoad_IngestionValidation",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@json(activity('ACT_EXEPL01-FullLoad_IngestionValidation').output.pipelineReturnValue.pl01rv_targetFileDetails)",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Append variable1",
+							"type": "AppendVariable",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "v_TargetFileDetails",
+								"value": {
+									"value": "@item()",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "ForEach1_copy1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "ACT_EXEPL02-EXT_SqlServer_Sales_IncrLoad",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@json(activity('ACT_EXEPL02-EXT_SqlServer_Sales_IncrLoad').output.pipelineReturnValue.pl02rv_targetFileDetails)",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Append variable1_copy1",
+							"type": "AppendVariable",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "v_TargetFileDetails",
+								"value": {
+									"value": "@item()",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
 			}
 		],
 		"variables": {
@@ -173,6 +243,12 @@
 			"v_isPipelineFailed": {
 				"type": "Boolean",
 				"defaultValue": false
+			},
+			"v_masterTimestamp": {
+				"type": "String"
+			},
+			"v_TargetFileDetails": {
+				"type": "Array"
 			}
 		},
 		"folder": {
