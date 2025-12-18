@@ -488,6 +488,11 @@
 				}
 			}
 		],
+		"parameters": {
+			"plp_timestamp": {
+				"type": "string"
+			}
+		},
 		"variables": {
 			"v_Timestamp": {
 				"type": "String"
