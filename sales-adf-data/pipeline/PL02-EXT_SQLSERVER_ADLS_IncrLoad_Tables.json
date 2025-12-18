@@ -233,8 +233,49 @@
 										}
 									},
 									{
-										"name": "ACT_STPRC-usp_upd_sales_watermarkTB",
-										"type": "SqlServerStoredProcedure",
+										"name": "ACT_SetVar02-v_isActivityFailed",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "ACT_COPY-IncrementalData_From_SqlServer_To_AdlsRaw",
+												"dependencyConditions": [
+													"Failed"
+												]
+											}
+										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "v_isActivityFailed",
+											"value": true
+										}
+									},
+									{
+										"name": "ACT_AppVar01-v_ErrorMsg",
+										"type": "AppendVariable",
+										"dependsOn": [
+											{
+												"activity": "ACT_SetVar02-v_isActivityFailed",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "v_ErrorMsg",
+											"value": {
+												"value": "@activity('ACT_COPY-IncrementalData_From_SqlServer_To_AdlsRaw').error.message",
+												"type": "Expression"
+											}
+										}
+									},
+									{
+										"name": "ACT_SetVar03-v_isCopySuccessful",
+										"type": "SetVariable",
 										"dependsOn": [
 											{
 												"activity": "ACT_COPY-IncrementalData_From_SqlServer_To_AdlsRaw",
@@ -243,6 +284,199 @@
 												]
 											}
 										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "v_isCopySuccessful",
+											"value": {
+												"value": "@equals(activity('ACT_COPY-IncrementalData_From_SqlServer_To_AdlsRaw').output.rowsRead,activity('ACT_COPY-IncrementalData_From_SqlServer_To_AdlsRaw').output.rowsCopied )",
+												"type": "Expression"
+											}
+										}
+									}
+								]
+							}
+						},
+						{
+							"name": "ACT_IF02-isCopySuccessful",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "ACT_IF01-lpv_equals_mpv",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@variables('v_isCopySuccessful')",
+									"type": "Expression"
+								},
+								"ifFalseActivities": [
+									{
+										"name": "ACT_SetVar05-v_isActivityFailed",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "v_isActivityFailed",
+											"value": true
+										}
+									},
+									{
+										"name": "ACT_AppVar03-v_ErrorMsg",
+										"type": "AppendVariable",
+										"dependsOn": [],
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "v_ErrorMsg",
+											"value": {
+												"value": "@concat('\\n File Name: ',item().src_file_name,\n    '\\n Validation Failed: records not copied fully! \\n Source Record count: ',activity('ACT_COPY-IncrementalData_From_SqlServer_To_AdlsRaw').output.rowsRead,\n    '\\n Sink Record Count: ',activity('ACT_COPY-IncrementalData_From_SqlServer_To_AdlsRaw').output.rowsCopied,\n    '\\n')",
+												"type": "Expression"
+											}
+										}
+									},
+									{
+										"name": "ACT_COPY02-Adls_Target_Failure",
+										"type": "Copy",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [
+											{
+												"name": "Source",
+												"value": "@{'raw-sales'}/@{concat(item().sink_folder_path,'/',formatDateTime(convertFromUtc(utcNow(),'India Standard Time'),'yyyy/MM/dd'))}/@{concat(item().sink_file_name,'_',variables('v_Timestamp'),'.csv')}"
+											},
+											{
+												"name": "Destination",
+												"value": "@{'raw-sales'}/@{concat('sqlserver-salesdb/Failure/',item().src_table,'/',string(formatDateTime(convertFromUtc(utcNow(),'India Standard Time'),'yyyy/MM/dd')))}/@{concat(item().sink_file_name,'_',variables('v_Timestamp'),'.csv')}"
+											}
+										],
+										"typeProperties": {
+											"source": {
+												"type": "DelimitedTextSource",
+												"storeSettings": {
+													"type": "AzureBlobFSReadSettings",
+													"recursive": true,
+													"enablePartitionDiscovery": false
+												},
+												"formatSettings": {
+													"type": "DelimitedTextReadSettings"
+												}
+											},
+											"sink": {
+												"type": "DelimitedTextSink",
+												"storeSettings": {
+													"type": "AzureBlobFSWriteSettings"
+												},
+												"formatSettings": {
+													"type": "DelimitedTextWriteSettings",
+													"quoteAllText": true,
+													"fileExtension": ".txt"
+												}
+											},
+											"enableStaging": false,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "DS_ADLS_CSV_DynamicPath",
+												"type": "DatasetReference",
+												"parameters": {
+													"container_name": "raw-sales",
+													"folder_path": {
+														"value": "@concat(item().sink_folder_path,'/',formatDateTime(convertFromUtc(utcNow(),'India Standard Time'),'yyyy/MM/dd'))",
+														"type": "Expression"
+													},
+													"file_name": {
+														"value": "@concat(item().sink_file_name,'_',variables('v_Timestamp'),'.csv')",
+														"type": "Expression"
+													}
+												}
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DS_ADLS_CSV_DynamicPath",
+												"type": "DatasetReference",
+												"parameters": {
+													"container_name": "raw-sales",
+													"folder_path": {
+														"value": "@concat('sqlserver-salesdb/Failure/',item().src_table,'/',string(formatDateTime(convertFromUtc(utcNow(),'India Standard Time'),'yyyy/MM/dd')))",
+														"type": "Expression"
+													},
+													"file_name": "@concat(item().sink_file_name,'_',variables('v_Timestamp'),'.csv')"
+												}
+											}
+										]
+									},
+									{
+										"name": "ACT_DLT01-TargetFailedFiles",
+										"type": "Delete",
+										"dependsOn": [
+											{
+												"activity": "ACT_COPY02-Adls_Target_Failure",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"dataset": {
+												"referenceName": "DS_ADLS_CSV_DynamicPath",
+												"type": "DatasetReference",
+												"parameters": {
+													"container_name": "raw-sales",
+													"folder_path": {
+														"value": "@concat(item().sink_folder_path,'/',formatDateTime(convertFromUtc(utcNow(),'India Standard Time'),'yyyy/MM/dd'))",
+														"type": "Expression"
+													},
+													"file_name": "@concat(item().sink_file_name,'_',variables('v_Timestamp'),'.csv')"
+												}
+											},
+											"enableLogging": false,
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": false,
+												"enablePartitionDiscovery": false
+											}
+										}
+									}
+								],
+								"ifTrueActivities": [
+									{
+										"name": "ACT_STPRC-usp_upd_sales_watermarkTB",
+										"type": "SqlServerStoredProcedure",
+										"dependsOn": [],
 										"policy": {
 											"timeout": "0.12:00:00",
 											"retry": 0,
@@ -276,15 +510,9 @@
 										}
 									},
 									{
-										"name": "ACT_SetVar02-isActivityFailed",
+										"name": "ACT_SetVar04-v_isActivityFailed",
 										"type": "SetVariable",
 										"dependsOn": [
-											{
-												"activity": "ACT_COPY-IncrementalData_From_SqlServer_To_AdlsRaw",
-												"dependencyConditions": [
-													"Failed"
-												]
-											},
 											{
 												"activity": "ACT_STPRC-usp_upd_sales_watermarkTB",
 												"dependencyConditions": [
@@ -299,27 +527,101 @@
 										"userProperties": [],
 										"typeProperties": {
 											"variableName": "v_isActivityFailed",
-											"value": "True"
+											"value": true
 										}
 									},
 									{
-										"name": "ACT_AppVar01-v_ErrorMsg",
+										"name": "ACT_AppVar02-v_ErrorMsg",
 										"type": "AppendVariable",
 										"dependsOn": [
 											{
-												"activity": "ACT_SetVar02-isActivityFailed",
+												"activity": "ACT_STPRC-usp_upd_sales_watermarkTB",
 												"dependencyConditions": [
-													"Succeeded"
+													"Failed"
 												]
 											}
 										],
 										"userProperties": [],
 										"typeProperties": {
 											"variableName": "v_ErrorMsg",
-											"value": ""
+											"value": {
+												"value": "@activity('ACT_STPRC-usp_upd_sales_watermarkTB').error.message",
+												"type": "Expression"
+											}
 										}
 									}
 								]
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "ACT_IF02_isActivityFailed",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "ACT_ForEach01-iterateOverWatermarkTB",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@variables('v_isActivityFailed')",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "ACT_Fail01-Fail_PL01",
+							"type": "Fail",
+							"dependsOn": [
+								{
+									"activity": "ACT_SetVar04-pl01rv_errorMsg_status",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"message": {
+									"value": "@string(join(variables('v_ErrorMsg'), '\\n'))",
+									"type": "Expression"
+								},
+								"errorCode": "0002"
+							}
+						},
+						{
+							"name": "ACT_SetVar04-pl01rv_errorMsg_status",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "pipelineReturnValue",
+								"value": [
+									{
+										"key": "pl02rv_errorMsg",
+										"value": {
+											"type": "Expression",
+											"content": "@string(join(variables('v_ErrorMsg'), '\\n'))"
+										}
+									},
+									{
+										"key": "pl02rv_status",
+										"value": {
+											"type": "String",
+											"content": "Failed"
+										}
+									}
+								],
+								"setSystemVariable": true
 							}
 						}
 					]
@@ -331,10 +633,14 @@
 				"type": "String"
 			},
 			"v_isActivityFailed": {
-				"type": "String"
+				"type": "Boolean",
+				"defaultValue": false
 			},
 			"v_ErrorMsg": {
 				"type": "Array"
+			},
+			"v_isCopySuccessful": {
+				"type": "Boolean"
 			}
 		},
 		"folder": {
