@@ -135,6 +135,35 @@
 						"type": "Expression"
 					}
 				}
+			},
+			{
+				"name": "ACT_EXEPL04-Validate_FullLoad_IncrementalLoad",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ACT_EXEPL01-FullLoad_IngestionValidation",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "ACT_EXEPL02-EXT_SqlServer_Sales_IncrLoad",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL04-Validation_FullAndIncrLoad",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
 			}
 		],
 		"variables": {
