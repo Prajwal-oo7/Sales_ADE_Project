@@ -1,7 +1,9 @@
 {
 	"name": "LS_ADB_SalesPP01",
 	"properties": {
-		"annotations": [],
+		"annotations": [
+			"Cluster LTS 15.4"
+		],
 		"type": "AzureDatabricks",
 		"typeProperties": {
 			"domain": "https://adb-1439483804654193.13.azuredatabricks.net",
