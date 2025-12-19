@@ -63,7 +63,8 @@
 		],
 		"parameters": {
 			"plp_plErrorSummary": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "Null"
 			},
 			"plp_isPipelineFailed": {
 				"type": "bool",
