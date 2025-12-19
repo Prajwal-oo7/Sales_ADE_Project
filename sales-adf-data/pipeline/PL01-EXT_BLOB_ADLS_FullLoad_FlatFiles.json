@@ -379,7 +379,7 @@
 										"typeProperties": {
 											"variableName": "v_targetFileDetails",
 											"value": {
-												"value": "@json(\n  concat(\n    '{',\n      ' \"target_file_name\":\" ', item().sink_file_name,'_',variables('v_Timestamp'),' .csv\", ',\n      '\"target_file_path\":\"', item().sink_folder_path, '\"',\n    '}'\n  )\n)\n\n",
+												"value": "@json(\n  concat(\n    '{',\n      '\"target_file_name\":\"', item().sink_file_name,'\",',\n      '\"target_file_path\":\"', item().sink_folder_path,'/',item().sink_file_name,'_',variables('v_Timestamp'),'.csv\"',\n    '}'\n  )\n)\n\n",
 												"type": "Expression"
 											}
 										}
