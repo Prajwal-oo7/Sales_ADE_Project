@@ -141,13 +141,13 @@
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "ForEach1",
+						"activity": "ACT_ForEach01-targetFile",
 						"dependencyConditions": [
 							"Succeeded"
 						]
 					},
 					{
-						"activity": "ForEach1_copy1",
+						"activity": "ACT_ForEach02-targetFile",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -166,7 +166,7 @@
 				}
 			},
 			{
-				"name": "ForEach1",
+				"name": "ACT_ForEach01-targetFile",
 				"type": "ForEach",
 				"dependsOn": [
 					{
@@ -185,7 +185,7 @@
 					"isSequential": true,
 					"activities": [
 						{
-							"name": "Append variable1",
+							"name": "ACT_AppVar03-v_TargetFileDetails",
 							"type": "AppendVariable",
 							"dependsOn": [],
 							"userProperties": [],
@@ -201,7 +201,7 @@
 				}
 			},
 			{
-				"name": "ForEach1_copy1",
+				"name": "ACT_ForEach02-targetFile",
 				"type": "ForEach",
 				"dependsOn": [
 					{
@@ -220,7 +220,7 @@
 					"isSequential": true,
 					"activities": [
 						{
-							"name": "Append variable1_copy1",
+							"name": "ACT_AppVar04-v_TargetFileDetails",
 							"type": "AppendVariable",
 							"dependsOn": [],
 							"userProperties": [],
