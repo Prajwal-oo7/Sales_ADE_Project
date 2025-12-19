@@ -14,7 +14,7 @@
 					},
 					"ifFalseActivities": [
 						{
-							"name": "Web1_copy1",
+							"name": "ACT_WEB02-emailAlert_PLSucceed",
 							"type": "WebActivity",
 							"dependsOn": [],
 							"policy": {
