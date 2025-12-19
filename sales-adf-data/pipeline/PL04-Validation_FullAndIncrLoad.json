@@ -3,8 +3,8 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Lookup1",
-				"type": "Lookup",
+				"name": "Notebook1",
+				"type": "DatabricksNotebook",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -15,24 +15,25 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"source": {
-						"type": "JsonSource",
-						"storeSettings": {
-							"type": "AzureBlobStorageReadSettings",
-							"recursive": true,
-							"enablePartitionDiscovery": false
-						},
-						"formatSettings": {
-							"type": "JsonReadSettings"
+					"notebookPath": "/Users/azurelearnerp001@gmail.com/NB01-getTargetfile",
+					"baseParameters": {
+						"fileDetailsJson": {
+							"value": "@pipeline().parameters.plp_targetFileJSON",
+							"type": "Expression"
 						}
-					},
-					"dataset": {
-						"referenceName": "DS_ABLB_JSON_config_salesFaltFiles",
-						"type": "DatasetReference"
 					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_ADB_SalesPP01",
+					"type": "LinkedServiceReference"
 				}
 			}
 		],
+		"parameters": {
+			"plp_targetFileJSON": {
+				"type": "string"
+			}
+		},
 		"folder": {
 			"name": "RetailSales-project"
 		},
