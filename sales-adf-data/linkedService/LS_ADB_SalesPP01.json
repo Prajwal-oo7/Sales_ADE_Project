@@ -1,0 +1,19 @@
+{
+	"name": "LS_ADB_SalesPP01",
+	"properties": {
+		"annotations": [],
+		"type": "AzureDatabricks",
+		"typeProperties": {
+			"domain": "https://adb-1439483804654193.13.azuredatabricks.net",
+			"accessToken": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "LS_AKV_SalesPP",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "ADB-salesPP-accessToken"
+			},
+			"existingClusterId": "1213-104500-xpp6k1gb"
+		}
+	}
+}
