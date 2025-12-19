@@ -162,7 +162,13 @@
 						"referenceName": "PL04-Validation_FullAndIncrLoad",
 						"type": "PipelineReference"
 					},
-					"waitOnCompletion": true
+					"waitOnCompletion": true,
+					"parameters": {
+						"plp_targetFileJSON": {
+							"value": "@string(variables('v_TargetFileDetails'))",
+							"type": "Expression"
+						}
+					}
 				}
 			},
 			{
