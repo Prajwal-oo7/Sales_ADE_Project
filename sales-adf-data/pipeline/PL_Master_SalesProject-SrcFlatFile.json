@@ -80,19 +80,19 @@
 					{
 						"activity": "ACT_AppVar03-v_plErrorList",
 						"dependencyConditions": [
-							"Completed"
-						]
-					},
-					{
-						"activity": "ACT_AppVar02-v_plErrorList_copy1",
-						"dependencyConditions": [
-							"Completed"
+							"Succeeded"
 						]
 					},
 					{
 						"activity": "ACT_AppVar01-v_plErrorList",
 						"dependencyConditions": [
-							"Completed"
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "ACT_AppVar02-v_plErrorList_copy1",
+						"dependencyConditions": [
+							"Succeeded"
 						]
 					}
 				],
