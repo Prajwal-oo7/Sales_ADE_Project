@@ -9,7 +9,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@pipeline().parameters.plp_isPipelineFailed",
+						"value": "@equals(string(pipeline().parameters.plp_isPipelineFailed),string('true'))",
 						"type": "Expression"
 					},
 					"ifFalseActivities": [
