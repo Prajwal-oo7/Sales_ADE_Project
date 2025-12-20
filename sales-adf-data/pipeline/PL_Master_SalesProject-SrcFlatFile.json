@@ -78,17 +78,21 @@
 				"type": "SetVariable",
 				"dependsOn": [
 					{
+						"activity": "ACT_AppVar01-v_plErrorList_copy1",
+						"dependencyConditions": [
+							"Completed"
+						]
+					},
+					{
 						"activity": "ACT_AppVar02-v_plErrorList_copy1",
 						"dependencyConditions": [
-							"Succeeded",
-							"Failed"
+							"Completed"
 						]
 					},
 					{
 						"activity": "ACT_AppVar01-v_plErrorList",
 						"dependencyConditions": [
-							"Succeeded",
-							"Failed"
+							"Completed"
 						]
 					}
 				],
@@ -245,6 +249,26 @@
 							}
 						}
 					]
+				}
+			},
+			{
+				"name": "ACT_AppVar01-v_plErrorList_copy1",
+				"type": "AppendVariable",
+				"dependsOn": [
+					{
+						"activity": "ACT_EXEPL04-Validate_FullLoad_IncrementalLoad",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_plErrorList",
+					"value": {
+						"value": "@concat(\n  'Pipeline: Child Pipeline: ACT_EXEPL01-FullLoad_IngestionValidation',\n  '\\nError: ',\n  activity('ACT_EXEPL01-FullLoad_IngestionValidation').output.pipelineReturnValue.pl01rv_errorMsg\n)",
+						"type": "Expression"
+					}
 				}
 			}
 		],
