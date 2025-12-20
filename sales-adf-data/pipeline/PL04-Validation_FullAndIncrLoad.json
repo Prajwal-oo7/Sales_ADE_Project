@@ -15,7 +15,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebookPath": "/Users/azurelearnerp001@gmail.com/NB01-getTargetfile",
+					"notebookPath": "/Users/azurelearnerp001@gmail.com/NB01-ValidateTargetFiles",
 					"baseParameters": {
 						"fileDetailsJson": {
 							"value": "@pipeline().parameters.plp_targetFileJSON",
