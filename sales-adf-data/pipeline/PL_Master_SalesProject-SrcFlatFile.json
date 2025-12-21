@@ -39,15 +39,15 @@
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "ACT_SetVar01-v_isPipelineFailed",
+						"activity": "ACT_EXEPL04-Validate_FullLoad_IncrementalLoad",
 						"dependencyConditions": [
-							"Succeeded"
+							"Completed"
 						]
 					},
 					{
-						"activity": "ACT_EXEPL04-Validate_FullLoad_IncrementalLoad",
+						"activity": "ACT_SetVar01-v_isPipelineFailed",
 						"dependencyConditions": [
-							"Succeeded"
+							"Completed"
 						]
 					}
 				],
@@ -78,21 +78,21 @@
 				"type": "SetVariable",
 				"dependsOn": [
 					{
-						"activity": "ACT_AppVar03-v_plErrorList",
+						"activity": "ACT_AppVar02-v_plErrorList_copy1",
 						"dependencyConditions": [
-							"Succeeded"
+							"Completed"
 						]
 					},
 					{
 						"activity": "ACT_AppVar01-v_plErrorList",
 						"dependencyConditions": [
-							"Succeeded"
+							"Completed"
 						]
 					},
 					{
-						"activity": "ACT_AppVar02-v_plErrorList_copy1",
+						"activity": "ACT_AppVar03-v_plErrorList",
 						"dependencyConditions": [
-							"Succeeded"
+							"Completed"
 						]
 					}
 				],
