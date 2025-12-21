@@ -421,6 +421,47 @@
 											"referenceName": "LS_ASQL_SalesProjectDB",
 											"type": "LinkedServiceReference"
 										}
+									},
+									{
+										"name": "ACT_SetVar04-v_isActivityFailed",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "ACT_STRPRC01-sp_deactivate_full_load",
+												"dependencyConditions": [
+													"Failed"
+												]
+											}
+										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "v_isActivityFailed",
+											"value": "True"
+										}
+									},
+									{
+										"name": "ACT_AppVar03-v_ErrorMsg",
+										"type": "AppendVariable",
+										"dependsOn": [
+											{
+												"activity": "ACT_SetVar04-v_isActivityFailed",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "v_ErrorMsg",
+											"value": {
+												"value": "@activity('ACT_STRPRC01-sp_deactivate_full_load').error.message",
+												"type": "Expression"
+											}
+										}
 									}
 								]
 							}
