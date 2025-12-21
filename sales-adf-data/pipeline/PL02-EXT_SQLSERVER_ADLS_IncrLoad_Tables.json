@@ -23,7 +23,11 @@
 					},
 					"dataset": {
 						"referenceName": "DS_ASQL_sales_watermarkTB",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"schema_name": "dbo",
+							"table_name": "sales_watermarkTB"
+						}
 					},
 					"firstRowOnly": false
 				}
