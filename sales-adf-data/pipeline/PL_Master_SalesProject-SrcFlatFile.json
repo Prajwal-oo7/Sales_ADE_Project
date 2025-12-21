@@ -72,18 +72,6 @@
 				"type": "SetVariable",
 				"dependsOn": [
 					{
-						"activity": "ACT_AppVar02-v_plErrorList_copy1",
-						"dependencyConditions": [
-							"Completed"
-						]
-					},
-					{
-						"activity": "ACT_AppVar01-v_plErrorList",
-						"dependencyConditions": [
-							"Completed"
-						]
-					},
-					{
 						"activity": "ACT_AppVar03-v_plErrorList",
 						"dependencyConditions": [
 							"Completed"
@@ -263,6 +251,48 @@
 						"value": "@concat(\n  'Pipeline: Child Pipeline: ACT_EXEPL03-Validate_FullLoad_IncrementalLoad',\n  '\\nError: ',\n  activity('ACT_EXEPL03-Validate_FullLoad_IncrementalLoad').error.message\n)\n",
 						"type": "Expression"
 					}
+				}
+			},
+			{
+				"name": "ACT_SetVar02-v_isPipelineFailed",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "ACT_AppVar01-v_plErrorList",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_isPipelineFailed",
+					"value": true
+				}
+			},
+			{
+				"name": "ACT_SetVar03-v_isPipelineFailed",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "ACT_AppVar02-v_plErrorList_copy1",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_isPipelineFailed",
+					"value": true
 				}
 			}
 		],
