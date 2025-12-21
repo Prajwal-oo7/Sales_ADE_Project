@@ -35,17 +35,11 @@
 				}
 			},
 			{
-				"name": "ACT_EXEPL03-EmailAlert",
+				"name": "ACT_EXEPL04-EmailAlert",
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "ACT_EXEPL04-Validate_FullLoad_IncrementalLoad",
-						"dependencyConditions": [
-							"Completed"
-						]
-					},
-					{
-						"activity": "ACT_SetVar01-v_isPipelineFailed",
+						"activity": "ACT_EXEPL03-Validate_FullLoad_IncrementalLoad",
 						"dependencyConditions": [
 							"Completed"
 						]
@@ -57,7 +51,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "PL03-EmailAlert",
+						"referenceName": "PL04-EmailAlert",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true,
@@ -147,7 +141,7 @@
 				}
 			},
 			{
-				"name": "ACT_EXEPL04-Validate_FullLoad_IncrementalLoad",
+				"name": "ACT_EXEPL03-Validate_FullLoad_IncrementalLoad",
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
@@ -169,7 +163,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "PL04-Validation_FullAndIncrLoad",
+						"referenceName": "PL03-Validation_FullAndIncrLoad",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true,
@@ -256,7 +250,7 @@
 				"type": "AppendVariable",
 				"dependsOn": [
 					{
-						"activity": "ACT_EXEPL04-Validate_FullLoad_IncrementalLoad",
+						"activity": "ACT_EXEPL03-Validate_FullLoad_IncrementalLoad",
 						"dependencyConditions": [
 							"Failed"
 						]
@@ -266,7 +260,7 @@
 				"typeProperties": {
 					"variableName": "v_plErrorList",
 					"value": {
-						"value": "@concat(\n  'Pipeline: Child Pipeline: ACT_EXEPL04-Validate_FullLoad_IncrementalLoad',\n  '\\nError: ',\n  activity('ACT_EXEPL04-Validate_FullLoad_IncrementalLoad').error.message\n)\n",
+						"value": "@concat(\n  'Pipeline: Child Pipeline: ACT_EXEPL03-Validate_FullLoad_IncrementalLoad',\n  '\\nError: ',\n  activity('ACT_EXEPL03-Validate_FullLoad_IncrementalLoad').error.message\n)\n",
 						"type": "Expression"
 					}
 				}
