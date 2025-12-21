@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "ACT_LKP01_Read_configJSON",
+				"name": "ACT_LKP01_Read_sales_blob_watermarkTB",
 				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
@@ -16,19 +16,21 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "JsonSource",
-						"storeSettings": {
-							"type": "AzureBlobStorageReadSettings",
-							"recursive": true,
-							"enablePartitionDiscovery": false
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select * from dbo.sales_blob_watermarkTB where is_active=1",
+							"type": "Expression"
 						},
-						"formatSettings": {
-							"type": "JsonReadSettings"
-						}
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
 					},
 					"dataset": {
-						"referenceName": "DS_ABLB_JSON_config_salesFaltFiles",
-						"type": "DatasetReference"
+						"referenceName": "DS_ASQL_sales_watermarkTB",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema_name": "dbo",
+							"table_name": "sales_blob_watermarkTB"
+						}
 					},
 					"firstRowOnly": false
 				}
@@ -38,7 +40,7 @@
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "ACT_LKP01_Read_configJSON",
+						"activity": "ACT_LKP01_Read_sales_blob_watermarkTB",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -47,7 +49,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('ACT_LKP01_Read_configJSON').output.value",
+						"value": "@activity('ACT_LKP01_Read_sales_blob_watermarkTB').output.value",
 						"type": "Expression"
 					},
 					"isSequential": true,
@@ -382,6 +384,42 @@
 												"value": "@json(\n  concat(\n    '{',\n      '\"target_file_name\":\"', item().sink_file_name,'\",',\n      '\"target_file_path\":\"', item().sink_folder_path,'/',item().sink_file_name,'_',variables('v_Timestamp'),'.csv\"',\n    '}'\n  )\n)\n\n",
 												"type": "Expression"
 											}
+										}
+									},
+									{
+										"name": "ACT_STRPRC01-sp_deactivate_full_load",
+										"type": "SqlServerStoredProcedure",
+										"dependsOn": [
+											{
+												"activity": "ACT_AppVar00-v_targetFileDetails",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"storedProcedureName": "[dbo].[sp_deactivate_full_load]",
+											"storedProcedureParameters": {
+												"sink_file_name": {
+													"value": {
+														"value": "@item().sink_file_name",
+														"type": "Expression"
+													},
+													"type": "String"
+												}
+											}
+										},
+										"linkedServiceName": {
+											"referenceName": "LS_ASQL_SalesProjectDB",
+											"type": "LinkedServiceReference"
 										}
 									}
 								]
