@@ -41,7 +41,7 @@
 					{
 						"activity": "ACT_EXEPL03-Validate_FullLoad_IncrementalLoad",
 						"dependencyConditions": [
-							"Completed"
+							"Succeeded"
 						]
 					}
 				],
@@ -293,6 +293,39 @@
 				"typeProperties": {
 					"variableName": "v_isPipelineFailed",
 					"value": true
+				}
+			},
+			{
+				"name": "ACT_EXEPL04-EmailAlert_copy1",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ACT_SetVar01-v_isPipelineFailed",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL04-EmailAlert",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"plp_plErrorSummary": {
+							"value": "@string(join(variables('v_plErrorList'), '\\n'))",
+							"type": "Expression"
+						},
+						"plp_isPipelineFailed": {
+							"value": "@variables('v_isPipelineFailed')",
+							"type": "Expression"
+						}
+					}
 				}
 			}
 		],
