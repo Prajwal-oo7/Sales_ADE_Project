@@ -159,7 +159,7 @@
 													}
 												],
 												"sqlReaderQuery": {
-													"value": "select * from @{item().src_schema}.@{item().src_table} where @{item().watermark_colname}>'@{item().last_processed_value}'",
+													"value": "select *,'SQL0001' AS SOURCE_ID,\n    FORMAT(GETDATE(), 'yyyy-MM-dd HH:mm:ss') AS DATA_DATE,\n    FORMAT(GETDATE(), 'yyyy-MM-dd HH:mm:ss') AS UPDATE_DATE \n    from @{item().src_schema}.@{item().src_table} where @{item().watermark_colname}>'@{item().last_processed_value}'",
 													"type": "Expression"
 												},
 												"queryTimeout": "02:00:00",
