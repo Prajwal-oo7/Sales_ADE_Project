@@ -166,7 +166,7 @@
 											"type": "Expression"
 										},
 										"src_file_delimiter": {
-											"value": "@item().src_file_delimiter",
+											"value": "@if(equals(item().src_file_delimiter,'TAB'),'\\t',item().src_file_delimiter)\n",
 											"type": "Expression"
 										}
 									}
