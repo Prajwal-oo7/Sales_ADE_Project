@@ -34,7 +34,8 @@
 				"value": "@dataset().src_file_delimiter",
 				"type": "Expression"
 			},
-			"escapeChar": "\\",
+			"rowDelimiter": "\n",
+			"escapeChar": "\"",
 			"firstRowAsHeader": true,
 			"quoteChar": "\""
 		},
