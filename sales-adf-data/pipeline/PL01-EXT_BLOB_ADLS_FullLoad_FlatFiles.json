@@ -927,10 +927,10 @@
 				"type": "Array"
 			},
 			"v_rowsRead": {
-				"type": "String"
+				"type": "Integer"
 			},
 			"v_rowsCopied": {
-				"type": "String"
+				"type": "Integer"
 			}
 		},
 		"folder": {
