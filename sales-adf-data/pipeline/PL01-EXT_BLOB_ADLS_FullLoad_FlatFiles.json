@@ -655,31 +655,6 @@
 											"enableStaging": false,
 											"translator": {
 												"type": "TabularTranslator",
-												"mappings": [
-													{
-														"source": {
-															"name": "\"BRANCH_CODE\"\t\"ADDRESS1\"\t\"CITY\"\t\"POSTAL_ZONE\"\t\"COUNTRY_CODE\"\t\"WAREHOUSE_BRANCH_CODE\"",
-															"type": "String",
-															"physicalType": "String"
-														},
-														"sink": {
-															"name": "\"BRANCH_CODE\"\t\"ADDRESS1\"\t\"CITY\"\t\"POSTAL_ZONE\"\t\"COUNTRY_CODE\"\t\"WAREHOUSE_BRANCH_CODE\"",
-															"type": "String",
-															"physicalType": "String"
-														}
-													},
-													{
-														"source": {
-															"name": "SOURCE_ID",
-															"type": "String"
-														},
-														"sink": {
-															"name": "SOURCE_ID",
-															"type": "String",
-															"physicalType": "String"
-														}
-													}
-												],
 												"typeConversion": true,
 												"typeConversionSettings": {
 													"allowDataTruncation": true,
