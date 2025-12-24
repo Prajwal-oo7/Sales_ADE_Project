@@ -72,129 +72,11 @@
 							}
 						},
 						{
-							"name": "ACT_COPY01_BlobSalesFlatFiles_AdlsRaw",
-							"type": "Copy",
-							"dependsOn": [
-								{
-									"activity": "ACT_SetVar01_Timestamp",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [
-								{
-									"name": "Source",
-									"value": "@{item().src_container_name}//@{item().src_file_name}"
-								},
-								{
-									"name": "Destination",
-									"value": "raw-sales/@{item().sink_folder_path}/@{concat(item().sink_file_name,'_',variables('v_Timestamp'),'.csv')}"
-								}
-							],
-							"typeProperties": {
-								"source": {
-									"type": "DelimitedTextSource",
-									"additionalColumns": [
-										{
-											"name": "SOURCE_ID",
-											"value": "BLB0001"
-										},
-										{
-											"name": "DATA_DATE",
-											"value": {
-												"value": "@formatDateTime(convertFromUtc(utcNow(),'India Standard Time'),'yyyy-MM-dd HH:mm:ss')",
-												"type": "Expression"
-											}
-										},
-										{
-											"name": "UPDATE_DATE",
-											"value": {
-												"value": "@formatDateTime(convertFromUtc(utcNow(),'India Standard Time'),'yyyy-MM-dd  HH:mm:ss')",
-												"type": "Expression"
-											}
-										}
-									],
-									"storeSettings": {
-										"type": "AzureBlobStorageReadSettings",
-										"recursive": true,
-										"enablePartitionDiscovery": false
-									},
-									"formatSettings": {
-										"type": "DelimitedTextReadSettings"
-									}
-								},
-								"sink": {
-									"type": "DelimitedTextSink",
-									"storeSettings": {
-										"type": "AzureBlobFSWriteSettings"
-									},
-									"formatSettings": {
-										"type": "DelimitedTextWriteSettings",
-										"quoteAllText": true,
-										"fileExtension": ".csv"
-									}
-								},
-								"enableStaging": false,
-								"translator": {
-									"type": "TabularTranslator",
-									"typeConversion": true,
-									"typeConversionSettings": {
-										"allowDataTruncation": true,
-										"treatBooleanAsNumber": false
-									}
-								}
-							},
-							"inputs": [
-								{
-									"referenceName": "DS_ABLB_SRC_Delimited_SalesFlatFiles",
-									"type": "DatasetReference",
-									"parameters": {
-										"src_container_name": {
-											"value": "@item().src_container_name",
-											"type": "Expression"
-										},
-										"src_file_name": {
-											"value": "@item().src_file_name",
-											"type": "Expression"
-										},
-										"src_file_delimiter": {
-											"value": "@if(equals(item().src_file_delimiter,'TAB'),'\\t',item().src_file_delimiter)\n",
-											"type": "Expression"
-										}
-									}
-								}
-							],
-							"outputs": [
-								{
-									"referenceName": "DS_ADLS_CSV_SINK_SalesRawTarget",
-									"type": "DatasetReference",
-									"parameters": {
-										"sink_folder_path": {
-											"value": "@item().sink_folder_path",
-											"type": "Expression"
-										},
-										"sink_file_name": {
-											"value": "@concat(item().sink_file_name,'_',variables('v_Timestamp'),'.csv')",
-											"type": "Expression"
-										}
-									}
-								}
-							]
-						},
-						{
 							"name": "ACT_IF01-srcCount_equals_sinkCount",
 							"type": "IfCondition",
 							"dependsOn": [
 								{
-									"activity": "ACT_COPY01_BlobSalesFlatFiles_AdlsRaw",
+									"activity": "ACT_IF01-src_delimiter_is_tab",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -203,7 +85,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@equals(activity('ACT_COPY01_BlobSalesFlatFiles_AdlsRaw').output.rowsRead,activity('ACT_COPY01_BlobSalesFlatFiles_AdlsRaw').output.rowsCopied)",
+									"value": "@equals(variables('v_rowsRead'),variables('v_rowsCopied'))",
 									"type": "Expression"
 								},
 								"ifFalseActivities": [
@@ -366,7 +248,7 @@
 										"typeProperties": {
 											"variableName": "v_ErrorMsg",
 											"value": {
-												"value": "@concat('\\n File Name: ',item().src_file_name,\n    '\\n Validation Failed: records not copied fully! \\n Source Record count: ',activity('ACT_COPY01_BlobSalesFlatFiles_AdlsRaw').output.rowsRead,\n    '\\n Sink Record Count: ',activity('ACT_COPY01_BlobSalesFlatFiles_AdlsRaw').output.rowsCopied,\n    '\\n')",
+												"value": "@concat('\\n File Name: ',item().src_file_name,\n    '\\n Validation Failed: records not copied fully! \\n Source Record count: ',variables('v_rowsRead'),\n    '\\n Sink Record Count: ',variables('v_rowsCopied'),\n    '\\n')",
 												"type": "Expression"
 											}
 										}
@@ -467,32 +349,11 @@
 							}
 						},
 						{
-							"name": "ACT_SetVar03-v_isActivityFailed",
-							"type": "SetVariable",
+							"name": "ACT_IF01-src_delimiter_is_tab",
+							"type": "IfCondition",
 							"dependsOn": [
 								{
-									"activity": "ACT_COPY01_BlobSalesFlatFiles_AdlsRaw",
-									"dependencyConditions": [
-										"Failed"
-									]
-								}
-							],
-							"policy": {
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"variableName": "v_isActivityFailed",
-								"value": "True"
-							}
-						},
-						{
-							"name": "ACT_AppVar02-v_ErrorMsg",
-							"type": "AppendVariable",
-							"dependsOn": [
-								{
-									"activity": "ACT_SetVar03-v_isActivityFailed",
+									"activity": "ACT_SetVar01_Timestamp",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -500,11 +361,475 @@
 							],
 							"userProperties": [],
 							"typeProperties": {
-								"variableName": "v_ErrorMsg",
-								"value": {
-									"value": "@activity('ACT_COPY01_BlobSalesFlatFiles_AdlsRaw').error.message",
+								"expression": {
+									"value": "@equals(item().src_file_delimiter,'Tab')\n",
 									"type": "Expression"
-								}
+								},
+								"ifFalseActivities": [
+									{
+										"name": "ACT_COPY02_BlobSalesFlatFiles_AdlsRaw",
+										"type": "Copy",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [
+											{
+												"name": "Source",
+												"value": "@{item().src_container_name}//@{item().src_file_name}"
+											},
+											{
+												"name": "Destination",
+												"value": "raw-sales/@{item().sink_folder_path}/@{concat(item().sink_file_name,'_',variables('v_Timestamp'),'.csv')}"
+											}
+										],
+										"typeProperties": {
+											"source": {
+												"type": "DelimitedTextSource",
+												"additionalColumns": [
+													{
+														"name": "SOURCE_ID",
+														"value": "BLB0001"
+													},
+													{
+														"name": "DATA_DATE",
+														"value": {
+															"value": "@formatDateTime(convertFromUtc(utcNow(),'India Standard Time'),'yyyy-MM-dd HH:mm:ss')",
+															"type": "Expression"
+														}
+													},
+													{
+														"name": "UPDATE_DATE",
+														"value": {
+															"value": "@formatDateTime(convertFromUtc(utcNow(),'India Standard Time'),'yyyy-MM-dd HH:mm:ss')",
+															"type": "Expression"
+														}
+													}
+												],
+												"storeSettings": {
+													"type": "AzureBlobStorageReadSettings",
+													"recursive": true,
+													"enablePartitionDiscovery": false
+												},
+												"formatSettings": {
+													"type": "DelimitedTextReadSettings"
+												}
+											},
+											"sink": {
+												"type": "DelimitedTextSink",
+												"storeSettings": {
+													"type": "AzureBlobFSWriteSettings"
+												},
+												"formatSettings": {
+													"type": "DelimitedTextWriteSettings",
+													"quoteAllText": true,
+													"fileExtension": ".csv"
+												}
+											},
+											"enableStaging": false,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "DS_ABLB_SRC_Delimited_SalesFlatFiles",
+												"type": "DatasetReference",
+												"parameters": {
+													"src_container_name": {
+														"value": "@item().src_container_name",
+														"type": "Expression"
+													},
+													"src_file_name": {
+														"value": "@item().src_file_name",
+														"type": "Expression"
+													},
+													"src_file_delimiter": {
+														"value": "@item().src_file_delimiter\n",
+														"type": "Expression"
+													}
+												}
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DS_ADLS_CSV_SINK_SalesRawTarget",
+												"type": "DatasetReference",
+												"parameters": {
+													"sink_folder_path": {
+														"value": "@item().sink_folder_path",
+														"type": "Expression"
+													},
+													"sink_file_name": {
+														"value": "@concat(item().sink_file_name,'_',variables('v_Timestamp'),'.csv')",
+														"type": "Expression"
+													}
+												}
+											}
+										]
+									},
+									{
+										"name": "ACT_SetVar03-v_isActivityFailed_copy2",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "ACT_COPY02_BlobSalesFlatFiles_AdlsRaw",
+												"dependencyConditions": [
+													"Failed"
+												]
+											}
+										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "v_isActivityFailed",
+											"value": "True"
+										}
+									},
+									{
+										"name": "ACT_AppVar02-v_ErrorMsg_copy2",
+										"type": "AppendVariable",
+										"dependsOn": [
+											{
+												"activity": "ACT_SetVar03-v_isActivityFailed_copy2",
+												"dependencyConditions": [
+													"Completed"
+												]
+											}
+										],
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "v_ErrorMsg",
+											"value": {
+												"value": "@activity('ACT_COPY02_BlobSalesFlatFiles_AdlsRaw').error.message",
+												"type": "Expression"
+											}
+										}
+									},
+									{
+										"name": "ACT_SetVar04-v_rowsRead_copy1",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "ACT_COPY02_BlobSalesFlatFiles_AdlsRaw",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "v_rowsRead",
+											"value": {
+												"value": "@activity('ACT_COPY02_BlobSalesFlatFiles_AdlsRaw').output.rowsRead",
+												"type": "Expression"
+											}
+										}
+									},
+									{
+										"name": "ACT_SetVar05-v_rowsCopied_copy1",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "ACT_SetVar04-v_rowsRead_copy1",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "v_rowsCopied",
+											"value": {
+												"value": "@activity('ACT_COPY02_BlobSalesFlatFiles_AdlsRaw').output.rowsCopied",
+												"type": "Expression"
+											}
+										}
+									},
+									{
+										"name": "Fail1_copy1",
+										"type": "Fail",
+										"dependsOn": [
+											{
+												"activity": "ACT_AppVar02-v_ErrorMsg_copy2",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"userProperties": [],
+										"typeProperties": {
+											"message": {
+												"value": "@activity('ACT_COPY02_BlobSalesFlatFiles_AdlsRaw').error.message",
+												"type": "Expression"
+											},
+											"errorCode": "0001"
+										}
+									}
+								],
+								"ifTrueActivities": [
+									{
+										"name": "ACT_COPY01_BlobSalesFlatFiles_AdlsRaw_Tab",
+										"type": "Copy",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [
+											{
+												"name": "Source",
+												"value": "@{item().src_container_name}//@{item().src_file_name}"
+											},
+											{
+												"name": "Destination",
+												"value": "raw-sales/@{item().sink_folder_path}/@{concat(item().sink_file_name,'_',variables('v_Timestamp'),'.csv')}"
+											}
+										],
+										"typeProperties": {
+											"source": {
+												"type": "DelimitedTextSource",
+												"additionalColumns": [
+													{
+														"name": "SOURCE_ID",
+														"value": "BLB0001"
+													},
+													{
+														"name": "DATA_DATE",
+														"value": {
+															"value": "@formatDateTime(convertFromUtc(utcNow(),'India Standard Time'),'yyyy-MM-dd HH:mm:ss')",
+															"type": "Expression"
+														}
+													},
+													{
+														"name": "UPDATE_DATE",
+														"value": {
+															"value": "@formatDateTime(convertFromUtc(utcNow(),'India Standard Time'),'yyyy-MM-dd HH:mm:ss')",
+															"type": "Expression"
+														}
+													}
+												],
+												"storeSettings": {
+													"type": "AzureBlobStorageReadSettings",
+													"recursive": true,
+													"enablePartitionDiscovery": false
+												},
+												"formatSettings": {
+													"type": "DelimitedTextReadSettings"
+												}
+											},
+											"sink": {
+												"type": "DelimitedTextSink",
+												"storeSettings": {
+													"type": "AzureBlobFSWriteSettings"
+												},
+												"formatSettings": {
+													"type": "DelimitedTextWriteSettings",
+													"quoteAllText": true,
+													"fileExtension": ".csv"
+												}
+											},
+											"enableStaging": false,
+											"translator": {
+												"type": "TabularTranslator",
+												"mappings": [
+													{
+														"source": {
+															"name": "\"BRANCH_CODE\"\t\"ADDRESS1\"\t\"CITY\"\t\"POSTAL_ZONE\"\t\"COUNTRY_CODE\"\t\"WAREHOUSE_BRANCH_CODE\"",
+															"type": "String",
+															"physicalType": "String"
+														},
+														"sink": {
+															"name": "\"BRANCH_CODE\"\t\"ADDRESS1\"\t\"CITY\"\t\"POSTAL_ZONE\"\t\"COUNTRY_CODE\"\t\"WAREHOUSE_BRANCH_CODE\"",
+															"type": "String",
+															"physicalType": "String"
+														}
+													},
+													{
+														"source": {
+															"name": "SOURCE_ID",
+															"type": "String"
+														},
+														"sink": {
+															"name": "SOURCE_ID",
+															"type": "String",
+															"physicalType": "String"
+														}
+													}
+												],
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "DS_ABLB_SRC_TabDelimited_SalesFlatFiles",
+												"type": "DatasetReference",
+												"parameters": {
+													"src_container_name": {
+														"value": "@item().src_container_name",
+														"type": "Expression"
+													},
+													"src_file_name": {
+														"value": "@item().src_file_name",
+														"type": "Expression"
+													}
+												}
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DS_ADLS_CSV_SINK_SalesRawTarget",
+												"type": "DatasetReference",
+												"parameters": {
+													"sink_folder_path": {
+														"value": "@item().sink_folder_path",
+														"type": "Expression"
+													},
+													"sink_file_name": {
+														"value": "@concat(item().sink_file_name,'_',variables('v_Timestamp'),'.csv')",
+														"type": "Expression"
+													}
+												}
+											}
+										]
+									},
+									{
+										"name": "ACT_SetVar03-v_isActivityFailed_copy1",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "ACT_COPY01_BlobSalesFlatFiles_AdlsRaw_Tab",
+												"dependencyConditions": [
+													"Failed"
+												]
+											}
+										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "v_isActivityFailed",
+											"value": "True"
+										}
+									},
+									{
+										"name": "ACT_AppVar02-v_ErrorMsg_copy1",
+										"type": "AppendVariable",
+										"dependsOn": [
+											{
+												"activity": "ACT_SetVar03-v_isActivityFailed_copy1",
+												"dependencyConditions": [
+													"Completed"
+												]
+											}
+										],
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "v_ErrorMsg",
+											"value": {
+												"value": "@activity('ACT_COPY01_BlobSalesFlatFiles_AdlsRaw_Tab').error.message",
+												"type": "Expression"
+											}
+										}
+									},
+									{
+										"name": "ACT_SetVar04-v_rowsRead",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "ACT_COPY01_BlobSalesFlatFiles_AdlsRaw_Tab",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "v_rowsRead",
+											"value": {
+												"value": "@activity('ACT_COPY01_BlobSalesFlatFiles_AdlsRaw_Tab').output.rowsRead",
+												"type": "Expression"
+											}
+										}
+									},
+									{
+										"name": "ACT_SetVar05-v_rowsCopied",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "ACT_SetVar04-v_rowsRead",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "v_rowsCopied",
+											"value": {
+												"value": "@activity('ACT_COPY01_BlobSalesFlatFiles_AdlsRaw_Tab').output.rowsCopied",
+												"type": "Expression"
+											}
+										}
+									},
+									{
+										"name": "Fail1",
+										"type": "Fail",
+										"dependsOn": [
+											{
+												"activity": "ACT_AppVar02-v_ErrorMsg_copy1",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"userProperties": [],
+										"typeProperties": {
+											"message": {
+												"value": "@activity('ACT_COPY01_BlobSalesFlatFiles_AdlsRaw_Tab').error.message",
+												"type": "Expression"
+											},
+											"errorCode": "0001"
+										}
+									}
+								]
 							}
 						}
 					]
@@ -625,6 +950,12 @@
 			},
 			"v_targetFileDetails": {
 				"type": "Array"
+			},
+			"v_rowsRead": {
+				"type": "String"
+			},
+			"v_rowsCopied": {
+				"type": "String"
 			}
 		},
 		"folder": {
