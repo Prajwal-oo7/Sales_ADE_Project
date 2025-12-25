@@ -327,6 +327,59 @@
 						}
 					}
 				}
+			},
+			{
+				"name": "Act_SetVar08-v_scdMetadata",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "ACT_EXEPL03-Validate_FullLoad_IncrementalLoad",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_scdMetadata",
+					"value": {
+						"value": "@activity('ACT_EXEPL03-Validate_FullLoad_IncrementalLoad').output.pipelineReturnValue.pl03rv_scdMetadata",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "ExePL05-SCD",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Act_SetVar08-v_scdMetadata",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl05-Perform_SCD1_2",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"plp_scdMetadataJSON": {
+							"value": "@variables('v_scdMetadata')",
+							"type": "Expression"
+						}
+					}
+				}
 			}
 		],
 		"variables": {
@@ -342,6 +395,9 @@
 			},
 			"v_TargetFileDetails": {
 				"type": "Array"
+			},
+			"v_scdMetadata": {
+				"type": "String"
 			}
 		},
 		"folder": {
