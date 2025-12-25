@@ -6,16 +6,17 @@
 		],
 		"type": "AzureDatabricks",
 		"typeProperties": {
-			"domain": "https://adb-1439483804654193.13.azuredatabricks.net",
+			"domain": "https://adb-7405614278998331.11.azuredatabricks.net",
 			"accessToken": {
 				"type": "AzureKeyVaultSecret",
 				"store": {
 					"referenceName": "LS_AKV_SalesPP",
 					"type": "LinkedServiceReference"
 				},
-				"secretName": "ADB-salesPP-accessToken"
+				"secretName": "ADB-salesPP-accessToken",
+				"secretVersion": "10a4c3bdc3794af0aea548a126a5153b"
 			},
-			"existingClusterId": "1213-104500-xpp6k1gb"
+			"existingClusterId": "1224-194204-kfbolp7f"
 		}
 	}
 }
