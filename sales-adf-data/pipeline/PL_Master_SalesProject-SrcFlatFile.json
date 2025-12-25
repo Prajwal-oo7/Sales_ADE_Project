@@ -39,7 +39,7 @@
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "ACT_EXEPL03-Validate_FullLoad_IncrementalLoad",
+						"activity": "ExePL05-SCD",
 						"dependencyConditions": [
 							"Succeeded"
 						]
