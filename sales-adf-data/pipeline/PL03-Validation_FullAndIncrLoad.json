@@ -27,6 +27,36 @@
 					"referenceName": "LS_ADB_SalesPP01",
 					"type": "LinkedServiceReference"
 				}
+			},
+			{
+				"name": "Act_SetVar01-pl03rv_scd_metadata",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Notebook1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "pipelineReturnValue",
+					"value": [
+						{
+							"key": "pl03rv_scd_metadata",
+							"value": {
+								"type": "Expression",
+								"content": "@activity('Notebook1').output.runOutput"
+							}
+						}
+					],
+					"setSystemVariable": true
+				}
 			}
 		],
 		"parameters": {
