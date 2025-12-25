@@ -48,7 +48,7 @@
 					"variableName": "pipelineReturnValue",
 					"value": [
 						{
-							"key": "pl03rv_scd_metadata",
+							"key": "pl03rv_scdMetadata",
 							"value": {
 								"type": "Expression",
 								"content": "@activity('Notebook1').output.runOutput"
