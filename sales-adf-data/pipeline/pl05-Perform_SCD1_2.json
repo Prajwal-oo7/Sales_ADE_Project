@@ -1,0 +1,54 @@
+{
+	"name": "pl05-Perform_SCD1_2",
+	"properties": {
+		"activities": [
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@json(pipeline().parameters.plp_scdMetadataJSON)",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Append variable2",
+							"type": "AppendVariable",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "scd",
+								"value": {
+									"value": "@item().table_name",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Append variable1",
+				"type": "AppendVariable",
+				"dependsOn": [],
+				"userProperties": []
+			}
+		],
+		"parameters": {
+			"plp_scdMetadataJSON": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"scd": {
+				"type": "Array"
+			}
+		},
+		"folder": {
+			"name": "RetailSales-project"
+		},
+		"annotations": []
+	}
+}
