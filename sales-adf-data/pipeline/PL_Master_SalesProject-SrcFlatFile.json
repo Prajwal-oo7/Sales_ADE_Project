@@ -369,7 +369,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "pl05-Perform_SCD1_2",
+						"referenceName": "PL05-Perform_SCD1_2",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true,
