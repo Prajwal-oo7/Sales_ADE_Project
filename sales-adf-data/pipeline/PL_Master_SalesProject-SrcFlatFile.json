@@ -109,7 +109,7 @@
 				}
 			},
 			{
-				"name": "ACT_AppVar02-v_plErrorList_copy1",
+				"name": "ACT_AppVar02-v_plErrorList",
 				"type": "AppendVariable",
 				"dependsOn": [
 					{
@@ -279,7 +279,7 @@
 				"type": "SetVariable",
 				"dependsOn": [
 					{
-						"activity": "ACT_AppVar02-v_plErrorList_copy1",
+						"activity": "ACT_AppVar02-v_plErrorList",
 						"dependencyConditions": [
 							"Completed"
 						]
