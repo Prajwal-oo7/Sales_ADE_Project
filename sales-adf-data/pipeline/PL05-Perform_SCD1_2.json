@@ -539,6 +539,26 @@
 								"referenceName": "LS_ASQL_SalesProjectDB",
 								"type": "LinkedServiceReference"
 							}
+						},
+						{
+							"name": "Fail1",
+							"type": "Fail",
+							"dependsOn": [
+								{
+									"activity": "ACT_SPRC-LogError_PL05",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"message": {
+									"value": "@variables('v_ErrorMsg')",
+									"type": "Expression"
+								},
+								"errorCode": "0003"
+							}
 						}
 					]
 				}
