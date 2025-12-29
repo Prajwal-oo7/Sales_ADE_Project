@@ -157,7 +157,7 @@
 						},
 						"ErrorDesc": {
 							"value": {
-								"value": "@activity('Notebook1').error.message",
+								"value": "@activity('ACT_DBNB01-Validation').error.message",
 								"type": "Expression"
 							},
 							"type": "String"
