@@ -3,9 +3,16 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Notebook1",
+				"name": "ACT_DBNB01-Validation",
 				"type": "DatabricksNotebook",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "ACT_SPRC-LogStart_PL03",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -33,7 +40,7 @@
 				"type": "SetVariable",
 				"dependsOn": [
 					{
-						"activity": "Notebook1",
+						"activity": "ACT_DBNB01-Validation",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -51,11 +58,195 @@
 							"key": "pl03rv_scdMetadata",
 							"value": {
 								"type": "Expression",
-								"content": "@activity('Notebook1').output.runOutput"
+								"content": "@activity('ACT_DBNB01-Validation').output.runOutput"
 							}
 						}
 					],
 					"setSystemVariable": true
+				}
+			},
+			{
+				"name": "ACT_SPRC-LogStart_PL03",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[audit].[sp_log_start]",
+					"storedProcedureParameters": {
+						"MasterPipelineId": {
+							"value": {
+								"value": "@pipeline()?.TriggeredByPipelineRunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"MasterPipelineName": {
+							"value": {
+								"value": "@pipeline()?.TriggeredByPipelineName",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PipelineId": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PipelineName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"SourceSystem": {
+							"value": {
+								"value": "'ADLS RAW'",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"TableName": {
+							"value": null,
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_ASQL_SalesProjectDB",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ACT_SPRC-LogError_PL03",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "ACT_DBNB01-Validation",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[audit].[sp_log_error]",
+					"storedProcedureParameters": {
+						"ActivityName": {
+							"value": {
+								"value": "'activity(Validation_Notebook1)'",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"ErrorDesc": {
+							"value": {
+								"value": "@activity('Notebook1').error.message",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"MasterPipelineId": {
+							"value": {
+								"value": "@pipeline()?.TriggeredByPipelineRunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"MasterPipelineName": {
+							"value": {
+								"value": "@pipeline()?.TriggeredByPipelineName",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PipelineId": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PipelineName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"TableName": {
+							"value": null,
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_ASQL_SalesProjectDB",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ACT_SPRC-LogSuccess-PL03",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Act_SetVar01-pl03rv_scd_metadata",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[audit].[sp_log_success]",
+					"storedProcedureParameters": {
+						"PipelineId": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"SourceCount": {
+							"value": null,
+							"type": "Int64"
+						},
+						"TableName": {
+							"value": null,
+							"type": "String"
+						},
+						"TargetCount": {
+							"value": null,
+							"type": "Int64"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_ASQL_SalesProjectDB",
+					"type": "LinkedServiceReference"
 				}
 			}
 		],
