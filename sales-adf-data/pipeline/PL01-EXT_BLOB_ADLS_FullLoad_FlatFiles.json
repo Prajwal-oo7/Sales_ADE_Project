@@ -194,7 +194,7 @@
 										"type": "SetVariable",
 										"dependsOn": [
 											{
-												"activity": "ACT_DLT01-TargetFailedFiles",
+												"activity": "ACT_COPY02-Adls_Target_Failure",
 												"dependencyConditions": [
 													"Succeeded"
 												]
