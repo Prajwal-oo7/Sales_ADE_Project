@@ -638,11 +638,11 @@
 							"type": "String"
 						},
 						"PipelineId": {
-							"value": null,
+							"value": "@pipeline().RunId",
 							"type": "String"
 						},
 						"PipelineName": {
-							"value": null,
+							"value": "@pipeline().Pipeline",
 							"type": "String"
 						},
 						"TableName": {
@@ -755,11 +755,11 @@
 							"type": "String"
 						},
 						"PipelineId": {
-							"value": null,
+							"value": "@pipeline().RunId",
 							"type": "String"
 						},
 						"PipelineName": {
-							"value": null,
+							"value": "@pipeline().Pipeline",
 							"type": "String"
 						},
 						"TableName": {
@@ -824,11 +824,11 @@
 							"type": "String"
 						},
 						"PipelineId": {
-							"value": null,
+							"value": "@pipeline().RunId",
 							"type": "String"
 						},
 						"PipelineName": {
-							"value": null,
+							"value": "@pipeline().Pipeline",
 							"type": "String"
 						},
 						"TableName": {
@@ -893,11 +893,11 @@
 							"type": "String"
 						},
 						"PipelineId": {
-							"value": null,
+							"value": "@pipeline().RunId",
 							"type": "String"
 						},
 						"PipelineName": {
-							"value": null,
+							"value": "@pipeline().Pipeline",
 							"type": "String"
 						},
 						"TableName": {
