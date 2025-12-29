@@ -3,9 +3,16 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "ForEach1",
+				"name": "ACT_ForEach01-stagingTable",
 				"type": "ForEach",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "ACT_SPRC-LogStart_PL05",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
@@ -14,16 +21,523 @@
 					},
 					"activities": [
 						{
-							"name": "Append variable2",
+							"name": "ACT_AppVar01-v_scd",
 							"type": "AppendVariable",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "ACT_SPRC-LogStart_foreachScdTable",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"userProperties": [],
 							"typeProperties": {
-								"variableName": "scd",
+								"variableName": "v_scd",
 								"value": {
 									"value": "@item().table_name",
 									"type": "Expression"
 								}
+							}
+						},
+						{
+							"name": "ACT_SPRC-sp_run_scd",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "ACT_AppVar01-v_scd",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[sp_run_scd]",
+								"storedProcedureParameters": {
+									"rows_affected": {
+										"value": {
+											"value": "v_scdRowsAffected",
+											"type": "Expression"
+										},
+										"type": "Int32"
+									},
+									"scd_type": {
+										"value": {
+											"value": "@item().scd_type",
+											"type": "Expression"
+										},
+										"type": "Int32"
+									},
+									"status": {
+										"value": {
+											"value": "v_scdStatus",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"TableName": {
+										"value": {
+											"value": "@item().table_name",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_ASQL_SalesProjectDB",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "ACT_SPRC-LogStart_foreachScdTable",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[audit].[sp_log_start]",
+								"storedProcedureParameters": {
+									"MasterPipelineId": {
+										"value": {
+											"value": "@pipeline()?.TriggeredByPipelineRunId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"MasterPipelineName": {
+										"value": {
+											"value": "@pipeline()?.TriggeredByPipelineName",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"PipelineId": {
+										"value": {
+											"value": "@pipeline().RunId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"PipelineName": {
+										"value": {
+											"value": "@pipeline().Pipeline",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"SourceSystem": {
+										"value": {
+											"value": "'Ingestion Layer'",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"TableName": {
+										"value": {
+											"value": "@item().table_name",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_ASQL_SalesProjectDB",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "ACT_IF-scdfails",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "ACT_SPRC-sp_run_scd",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@equals(variables('v_scdRowsAffected'), 0)",
+									"type": "Expression"
+								},
+								"ifFalseActivities": [
+									{
+										"name": "ACT_SPRC-LogSuccess-scdTable",
+										"type": "SqlServerStoredProcedure",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"storedProcedureName": "[audit].[sp_log_success]",
+											"storedProcedureParameters": {
+												"PipelineId": {
+													"value": {
+														"value": "@pipeline().RunId",
+														"type": "Expression"
+													},
+													"type": "String"
+												},
+												"SourceCount": {
+													"value": {
+														"value": "@item().valid_count",
+														"type": "Expression"
+													},
+													"type": "Int64"
+												},
+												"TableName": {
+													"value": {
+														"value": "@item().table_name",
+														"type": "Expression"
+													},
+													"type": "String"
+												},
+												"TargetCount": {
+													"value": {
+														"value": "@variables('v_scdRowsAffected')",
+														"type": "Expression"
+													},
+													"type": "Int64"
+												}
+											}
+										},
+										"linkedServiceName": {
+											"referenceName": "LS_ASQL_SalesProjectDB",
+											"type": "LinkedServiceReference"
+										}
+									}
+								],
+								"ifTrueActivities": [
+									{
+										"name": "ACT_SPRC-LogError_scdfail",
+										"type": "SqlServerStoredProcedure",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"storedProcedureName": "[audit].[sp_log_error]",
+											"storedProcedureParameters": {
+												"ActivityName": {
+													"value": {
+														"value": "'ACT_SPRC-sp_run_scd'",
+														"type": "Expression"
+													},
+													"type": "String"
+												},
+												"ErrorDesc": {
+													"value": {
+														"value": "@variables('v_scdStatus')",
+														"type": "Expression"
+													},
+													"type": "String"
+												},
+												"MasterPipelineId": {
+													"value": {
+														"value": "@pipeline()?.TriggeredByPipelineRunId",
+														"type": "Expression"
+													},
+													"type": "String"
+												},
+												"MasterPipelineName": {
+													"value": {
+														"value": "@pipeline()?.TriggeredByPipelineName",
+														"type": "Expression"
+													},
+													"type": "String"
+												},
+												"PipelineId": {
+													"value": {
+														"value": "@pipeline().RunId",
+														"type": "Expression"
+													},
+													"type": "String"
+												},
+												"PipelineName": {
+													"value": {
+														"value": "@pipeline().Pipeline",
+														"type": "Expression"
+													},
+													"type": "String"
+												},
+												"TableName": {
+													"value": {
+														"value": "@item().table_name",
+														"type": "Expression"
+													},
+													"type": "String"
+												}
+											}
+										},
+										"linkedServiceName": {
+											"referenceName": "LS_ASQL_SalesProjectDB",
+											"type": "LinkedServiceReference"
+										}
+									}
+								]
+							}
+						},
+						{
+							"name": "ACT_SetVar-v_isActivityFailed",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "ACT_SPRC-sp_run_scd",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "v_isActivityFailed",
+								"value": true
+							}
+						},
+						{
+							"name": "ACT_SetVar-v_ErrorMsg",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "ACT_SetVar-v_isActivityFailed",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "v_ErrorMsg",
+								"value": {
+									"value": "@activity('ACT_SPRC-sp_run_scd').error.message",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "ACT_SPRC-LogStart_PL05",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[audit].[sp_log_start]",
+					"storedProcedureParameters": {
+						"MasterPipelineId": {
+							"value": {
+								"value": "@pipeline()?.TriggeredByPipelineRunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"MasterPipelineName": {
+							"value": {
+								"value": "@pipeline()?.TriggeredByPipelineName",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PipelineId": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PipelineName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"SourceSystem": {
+							"value": null,
+							"type": "String"
+						},
+						"TableName": {
+							"value": null,
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_ASQL_SalesProjectDB",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ACT_IF-isActivityFailed",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "ACT_ForEach01-stagingTable",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@variables('v_isActivityFailed')",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "ACT_SPRC-LogSuccess-PL05",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[audit].[sp_log_success]",
+								"storedProcedureParameters": {
+									"PipelineId": {
+										"value": {
+											"value": "@pipeline().RunId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"SourceCount": {
+										"value": null,
+										"type": "Int64"
+									},
+									"TableName": {
+										"value": null,
+										"type": "String"
+									},
+									"TargetCount": {
+										"value": null,
+										"type": "Int64"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_ASQL_SalesProjectDB",
+								"type": "LinkedServiceReference"
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "ACT_SPRC-LogError_PL05",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[audit].[sp_log_error]",
+								"storedProcedureParameters": {
+									"ActivityName": {
+										"value": {
+											"value": "'ACT_Foreach-ScdTable'",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"ErrorDesc": {
+										"value": {
+											"value": "@variables('v_ErrorMsg')",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"MasterPipelineId": {
+										"value": {
+											"value": "@pipeline()?.TriggeredByPipelineRunId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"MasterPipelineName": {
+										"value": {
+											"value": "@pipeline()?.TriggeredByPipelineName",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"PipelineId": {
+										"value": {
+											"value": "@pipeline().RunId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"PipelineName": {
+										"value": {
+											"value": "@pipeline().Pipeline",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"TableName": {
+										"value": null,
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_ASQL_SalesProjectDB",
+								"type": "LinkedServiceReference"
 							}
 						}
 					]
@@ -36,8 +550,21 @@
 			}
 		},
 		"variables": {
-			"scd": {
+			"v_scd": {
 				"type": "Array"
+			},
+			"v_scdStatus": {
+				"type": "String"
+			},
+			"v_scdRowsAffected": {
+				"type": "Integer"
+			},
+			"v_isActivityFailed": {
+				"type": "Boolean",
+				"defaultValue": false
+			},
+			"v_ErrorMsg": {
+				"type": "String"
 			}
 		},
 		"folder": {
