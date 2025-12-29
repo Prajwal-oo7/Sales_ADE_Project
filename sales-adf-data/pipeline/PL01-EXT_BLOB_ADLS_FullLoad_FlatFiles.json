@@ -5,7 +5,14 @@
 			{
 				"name": "ACT_LKP01_Read_sales_blob_watermarkTB",
 				"type": "Lookup",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "ACT_SPRC-LogStart_PL01",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -57,7 +64,14 @@
 						{
 							"name": "ACT_SetVar01_Timestamp",
 							"type": "SetVariable",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "ACT_SPRC01-LogStart-for_each_copy",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"secureOutput": false,
 								"secureInput": false
@@ -252,6 +266,81 @@
 												"type": "Expression"
 											}
 										}
+									},
+									{
+										"name": "ACT_SPRC03-LogError-ForEachCopy",
+										"type": "SqlServerStoredProcedure",
+										"dependsOn": [
+											{
+												"activity": "ACT_AppVar01-v_ErrorMsg",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"storedProcedureName": "[audit].[sp_log_error]",
+											"storedProcedureParameters": {
+												"ActivityName": {
+													"value": "'ACT_ForEach01_FileInConfig'",
+													"type": "String"
+												},
+												"ErrorDesc": {
+													"value": {
+														"value": "@variables('v_ErrorMsg')",
+														"type": "Expression"
+													},
+													"type": "String"
+												},
+												"MasterPipelineId": {
+													"value": {
+														"value": "@pipeline()?.TriggeredByPipelineRunId",
+														"type": "Expression"
+													},
+													"type": "String"
+												},
+												"MasterPipelineName": {
+													"value": {
+														"value": "@pipeline()?.TriggeredByPipelineName",
+														"type": "Expression"
+													},
+													"type": "String"
+												},
+												"PipelineId": {
+													"value": {
+														"value": "@pipeline().RunId",
+														"type": "Expression"
+													},
+													"type": "String"
+												},
+												"PipelineName": {
+													"value": {
+														"value": "@pipeline().Pipeline",
+														"type": "Expression"
+													},
+													"type": "String"
+												},
+												"TableName": {
+													"value": {
+														"value": "@item().src_file_name",
+														"type": "Expression"
+													},
+													"type": "String"
+												}
+											}
+										},
+										"linkedServiceName": {
+											"referenceName": "LS_ASQL_SalesProjectDB",
+											"type": "LinkedServiceReference"
+										}
 									}
 								],
 								"ifTrueActivities": [
@@ -343,6 +432,63 @@
 												"value": "@activity('ACT_STRPRC01-sp_deactivate_full_load').error.message",
 												"type": "Expression"
 											}
+										}
+									},
+									{
+										"name": "ACT_SPRC02-LogSuccess-forEachCopy",
+										"type": "SqlServerStoredProcedure",
+										"dependsOn": [
+											{
+												"activity": "ACT_STRPRC01-sp_deactivate_full_load",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"storedProcedureName": "[audit].[sp_log_success]",
+											"storedProcedureParameters": {
+												"PipelineId": {
+													"value": {
+														"value": "@pipeline().RunId",
+														"type": "Expression"
+													},
+													"type": "String"
+												},
+												"SourceCount": {
+													"value": {
+														"value": "@variables('v_rowsRead')",
+														"type": "Expression"
+													},
+													"type": "Int64"
+												},
+												"TableName": {
+													"value": {
+														"value": "@item().src_file_name",
+														"type": "Expression"
+													},
+													"type": "String"
+												},
+												"TargetCount": {
+													"value": {
+														"value": "@variables('v_rowsCopied')",
+														"type": "Expression"
+													},
+													"type": "Int64"
+												}
+											}
+										},
+										"linkedServiceName": {
+											"referenceName": "LS_ASQL_SalesProjectDB",
+											"type": "LinkedServiceReference"
 										}
 									}
 								]
@@ -806,6 +952,142 @@
 									}
 								]
 							}
+						},
+						{
+							"name": "ACT_SPRC01-LogStart-for_each_copy",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[audit].[sp_log_start]",
+								"storedProcedureParameters": {
+									"MasterPipelineId": {
+										"value": {
+											"value": "@pipeline()?.TriggeredByPipelineRunId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"MasterPipelineName": {
+										"value": {
+											"value": "@pipeline()?.TriggeredByPipelineName",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"PipelineId": {
+										"value": {
+											"value": "@pipeline().RunId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"PipelineName": {
+										"value": {
+											"value": "@pipeline().Pipeline",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"SourceSystem": {
+										"value": "Blobpp01",
+										"type": "String"
+									},
+									"TableName": {
+										"value": {
+											"value": "@item().src_file_name",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_ASQL_SalesProjectDB",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "ACT_SPRC03-LogError-ForEachCopy_copy1",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "ACT_IF01-src_delimiter_is_tab",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[audit].[sp_log_error]",
+								"storedProcedureParameters": {
+									"ActivityName": {
+										"value": "'ACT_ForEach01_FileInConfig'",
+										"type": "String"
+									},
+									"ErrorDesc": {
+										"value": {
+											"value": "@variables('v_ErrorMsg')",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"MasterPipelineId": {
+										"value": {
+											"value": "@pipeline()?.TriggeredByPipelineRunId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"MasterPipelineName": {
+										"value": {
+											"value": "@pipeline()?.TriggeredByPipelineName",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"PipelineId": {
+										"value": {
+											"value": "@pipeline().RunId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"PipelineName": {
+										"value": {
+											"value": "@pipeline().Pipeline",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"TableName": {
+										"value": {
+											"value": "@item().src_file_name",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_ASQL_SalesProjectDB",
+								"type": "LinkedServiceReference"
+							}
 						}
 					]
 				}
@@ -831,7 +1113,14 @@
 						{
 							"name": "ACT_SetVar06-pl01rv_targetFileDetails",
 							"type": "SetVariable",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "ACT_SPRC-LogSuccess-PL01",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"secureOutput": false,
 								"secureInput": false
@@ -850,6 +1139,47 @@
 								],
 								"setSystemVariable": true
 							}
+						},
+						{
+							"name": "ACT_SPRC-LogSuccess-PL01",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[audit].[sp_log_success]",
+								"storedProcedureParameters": {
+									"PipelineId": {
+										"value": {
+											"value": "@pipeline().RunId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"SourceCount": {
+										"value": null,
+										"type": "Int64"
+									},
+									"TableName": {
+										"value": null,
+										"type": "String"
+									},
+									"TargetCount": {
+										"value": null,
+										"type": "Int64"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_ASQL_SalesProjectDB",
+								"type": "LinkedServiceReference"
+							}
 						}
 					],
 					"ifTrueActivities": [
@@ -858,7 +1188,7 @@
 							"type": "Fail",
 							"dependsOn": [
 								{
-									"activity": "ACT_SetVar04-pl01rv_errorMsg_status",
+									"activity": "ACT_SPRC-LogError_PL01",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -902,8 +1232,141 @@
 								],
 								"setSystemVariable": true
 							}
+						},
+						{
+							"name": "ACT_SPRC-LogError_PL01",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "ACT_SetVar04-pl01rv_errorMsg_status",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[audit].[sp_log_error]",
+								"storedProcedureParameters": {
+									"ActivityName": {
+										"value": null,
+										"type": "String"
+									},
+									"ErrorDesc": {
+										"value": {
+											"value": "@string(join(variables('v_ErrorMsg'), '\\n'))",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"MasterPipelineId": {
+										"value": {
+											"value": "@pipeline()?.TriggeredByPipelineRunId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"MasterPipelineName": {
+										"value": {
+											"value": "@pipeline()?.TriggeredByPipelineName",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"PipelineId": {
+										"value": {
+											"value": "@pipeline().RunId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"PipelineName": {
+										"value": {
+											"value": "@pipeline().Pipeline",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"TableName": {
+										"value": null,
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_ASQL_SalesProjectDB",
+								"type": "LinkedServiceReference"
+							}
 						}
 					]
+				}
+			},
+			{
+				"name": "ACT_SPRC-LogStart_PL01",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[audit].[sp_log_start]",
+					"storedProcedureParameters": {
+						"MasterPipelineId": {
+							"value": {
+								"value": "@pipeline()?.TriggeredByPipelineRunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"MasterPipelineName": {
+							"value": {
+								"value": "@pipeline()?.TriggeredByPipelineName",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PipelineId": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PipelineName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"SourceSystem": {
+							"value": {
+								"value": "'Blobpp01'",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"TableName": {
+							"value": null,
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_ASQL_SalesProjectDB",
+					"type": "LinkedServiceReference"
 				}
 			}
 		],
@@ -931,6 +1394,15 @@
 			},
 			"v_rowsCopied": {
 				"type": "Integer"
+			},
+			"v_StartTime": {
+				"type": "String"
+			},
+			"v_EndTime": {
+				"type": "String"
+			},
+			"v_Status": {
+				"type": "String"
 			}
 		},
 		"folder": {
