@@ -361,7 +361,7 @@
 				"typeProperties": {
 					"variableName": "v_scdMetadata",
 					"value": {
-						"value": "@activity('ACT_EXEPL03-Validate_FullLoad_IncrementalLoad').output.pipelineReturnValue.pl03rv_scdMetadata",
+						"value": "@string(activity('ACT_EXEPL03-Validate_FullLoad_IncrementalLoad').output.pipelineReturnValue.pl03rv_scdMetadata)",
 						"type": "Expression"
 					}
 				}
