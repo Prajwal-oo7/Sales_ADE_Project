@@ -5,14 +5,7 @@
 			{
 				"name": "ACT_EXEPL01-FullLoad_IngestionValidation",
 				"type": "ExecutePipeline",
-				"dependsOn": [
-					{
-						"activity": "ACT_SPRC-LogStart_MasterPL",
-						"dependencyConditions": [
-							"Completed"
-						]
-					}
-				],
+				"dependsOn": [],
 				"policy": {
 					"secureInput": false
 				},
@@ -28,14 +21,7 @@
 			{
 				"name": "ACT_EXEPL02-EXT_SqlServer_Sales_IncrLoad",
 				"type": "ExecutePipeline",
-				"dependsOn": [
-					{
-						"activity": "ACT_SPRC-LogStart_MasterPL",
-						"dependencyConditions": [
-							"Completed"
-						]
-					}
-				],
+				"dependsOn": [],
 				"policy": {
 					"secureInput": false
 				},
@@ -536,58 +522,6 @@
 				}
 			},
 			{
-				"name": "ACT_SPRC-LogStart_MasterPL",
-				"type": "SqlServerStoredProcedure",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"storedProcedureName": "[audit].[sp_log_start]",
-					"storedProcedureParameters": {
-						"MasterPipelineId": {
-							"value": {
-								"value": "@pipeline().RunId",
-								"type": "Expression"
-							},
-							"type": "String"
-						},
-						"MasterPipelineName": {
-							"value": {
-								"value": "@pipeline().Pipeline",
-								"type": "Expression"
-							},
-							"type": "String"
-						},
-						"PipelineId": {
-							"value": null,
-							"type": "String"
-						},
-						"PipelineName": {
-							"value": null,
-							"type": "String"
-						},
-						"SourceSystem": {
-							"value": null,
-							"type": "String"
-						},
-						"TableName": {
-							"value": null,
-							"type": "String"
-						}
-					}
-				},
-				"linkedServiceName": {
-					"referenceName": "LS_ASQL_SalesProjectDB",
-					"type": "LinkedServiceReference"
-				}
-			},
-			{
 				"name": "ACT_SPRC01-LogError_MasterPL",
 				"type": "SqlServerStoredProcedure",
 				"dependsOn": [
@@ -607,47 +541,63 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"storedProcedureName": "[audit].[sp_log_error]",
+					"storedProcedureName": "[audit].[sp_log_fail_error]",
 					"storedProcedureParameters": {
 						"ActivityName": {
-							"value": {
-								"value": "'ACT_EXEPL01-FullLoad_IngestionValidation'",
-								"type": "Expression"
-							},
+							"value": "",
 							"type": "String"
 						},
+						"endTime": {
+							"value": "",
+							"type": "DateTime"
+						},
+						"ErrorDateTime": {
+							"value": "",
+							"type": "DateTime"
+						},
 						"ErrorDesc": {
-							"value": {
-								"value": "@variables('v_plErrorList')",
-								"type": "Expression"
-							},
+							"value": "",
 							"type": "String"
 						},
 						"MasterPipelineId": {
-							"value": {
-								"value": "@pipeline().RunId",
-								"type": "Expression"
-							},
+							"value": "",
 							"type": "String"
 						},
 						"MasterPipelineName": {
-							"value": {
-								"value": "@pipeline().Pipeline",
-								"type": "Expression"
-							},
+							"value": "",
 							"type": "String"
 						},
 						"PipelineId": {
-							"value": "@pipeline().RunId",
+							"value": "",
 							"type": "String"
 						},
 						"PipelineName": {
-							"value": "@pipeline().Pipeline",
+							"value": "",
+							"type": "String"
+						},
+						"SourceCount": {
+							"value": "",
+							"type": "Int64"
+						},
+						"SourceSystem": {
+							"value": "",
+							"type": "String"
+						},
+						"startTime": {
+							"value": "",
+							"type": "DateTime"
+						},
+						"status": {
+							"value": "",
 							"type": "String"
 						},
 						"TableName": {
-							"value": null,
+							"value": "",
 							"type": "String"
+						},
+						"TargetCount": {
+							"value": "",
+							"type": "Int64"
 						}
 					}
 				},
@@ -755,11 +705,17 @@
 							"type": "String"
 						},
 						"PipelineId": {
-							"value": "@pipeline().RunId",
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
 							"type": "String"
 						},
 						"PipelineName": {
-							"value": "@pipeline().Pipeline",
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
 							"type": "String"
 						},
 						"TableName": {
@@ -824,11 +780,17 @@
 							"type": "String"
 						},
 						"PipelineId": {
-							"value": "@pipeline().RunId",
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
 							"type": "String"
 						},
 						"PipelineName": {
-							"value": "@pipeline().Pipeline",
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
 							"type": "String"
 						},
 						"TableName": {
@@ -893,11 +855,17 @@
 							"type": "String"
 						},
 						"PipelineId": {
-							"value": "@pipeline().RunId",
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
 							"type": "String"
 						},
 						"PipelineName": {
-							"value": "@pipeline().Pipeline",
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
 							"type": "String"
 						},
 						"TableName": {
