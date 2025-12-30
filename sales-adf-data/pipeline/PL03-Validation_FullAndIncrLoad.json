@@ -5,14 +5,7 @@
 			{
 				"name": "ACT_DBNB01-Validation",
 				"type": "DatabricksNotebook",
-				"dependsOn": [
-					{
-						"activity": "ACT_SPRC-LogStart_PL03",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -66,9 +59,16 @@
 				}
 			},
 			{
-				"name": "ACT_SPRC-LogStart_PL03",
+				"name": "ACT_SPRC-LogSuccess-PL03",
 				"type": "SqlServerStoredProcedure",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Act_SetVar01-pl03rv_scd_metadata",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -78,8 +78,22 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"storedProcedureName": "[audit].[sp_log_start]",
+					"storedProcedureName": "[audit].[sp_log_success]",
 					"storedProcedureParameters": {
+						"ActivityName": {
+							"value": {
+								"value": "'ACT_DBNB01-Validation'",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"endTime": {
+							"value": {
+								"value": "@activity('ACT_DBNB01-Validation').output.executionDetails[0].end",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
 						"MasterPipelineId": {
 							"value": {
 								"value": "@pipeline()?.TriggeredByPipelineRunId",
@@ -108,9 +122,27 @@
 							},
 							"type": "String"
 						},
+						"SourceCount": {
+							"value": null,
+							"type": "Int64"
+						},
 						"SourceSystem": {
 							"value": {
-								"value": "'ADLS RAW'",
+								"value": "'RAW_INGESTION_LAYER'",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"startTime": {
+							"value": {
+								"value": "@activity('ACT_DBNB01-Validation').output.executionDetails[0].start",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
+						"status": {
+							"value": {
+								"value": "'Success'",
 								"type": "Expression"
 							},
 							"type": "String"
@@ -118,6 +150,10 @@
 						"TableName": {
 							"value": null,
 							"type": "String"
+						},
+						"TargetCount": {
+							"value": null,
+							"type": "Int64"
 						}
 					}
 				},
@@ -146,14 +182,28 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"storedProcedureName": "[audit].[sp_log_error]",
+					"storedProcedureName": "[audit].[sp_log_fail_error]",
 					"storedProcedureParameters": {
 						"ActivityName": {
 							"value": {
-								"value": "'activity(Validation_Notebook1)'",
+								"value": "'ACT_DBNB01-Validation'",
 								"type": "Expression"
 							},
 							"type": "String"
+						},
+						"endTime": {
+							"value": {
+								"value": "@activity('ACT_DBNB01-Validation').output.executionDetails[0].end",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
+						"ErrorDateTime": {
+							"value": {
+								"value": "@utcNow()",
+								"type": "Expression"
+							},
+							"type": "DateTime"
 						},
 						"ErrorDesc": {
 							"value": {
@@ -190,49 +240,30 @@
 							},
 							"type": "String"
 						},
-						"TableName": {
+						"SourceCount": {
 							"value": null,
-							"type": "String"
-						}
-					}
-				},
-				"linkedServiceName": {
-					"referenceName": "LS_ASQL_SalesProjectDB",
-					"type": "LinkedServiceReference"
-				}
-			},
-			{
-				"name": "ACT_SPRC-LogSuccess-PL03",
-				"type": "SqlServerStoredProcedure",
-				"dependsOn": [
-					{
-						"activity": "Act_SetVar01-pl03rv_scd_metadata",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"storedProcedureName": "[audit].[sp_log_success]",
-					"storedProcedureParameters": {
-						"PipelineId": {
+							"type": "Int64"
+						},
+						"SourceSystem": {
 							"value": {
-								"value": "@pipeline().RunId",
+								"value": "'BLOB_PP01'",
 								"type": "Expression"
 							},
 							"type": "String"
 						},
-						"SourceCount": {
-							"value": null,
-							"type": "Int64"
+						"startTime": {
+							"value": {
+								"value": "@activity('ACT_DBNB01-Validation').output.executionDetails[0].start",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
+						"status": {
+							"value": {
+								"value": "'Fail'",
+								"type": "Expression"
+							},
+							"type": "String"
 						},
 						"TableName": {
 							"value": null,
@@ -247,6 +278,26 @@
 				"linkedServiceName": {
 					"referenceName": "LS_ASQL_SalesProjectDB",
 					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Fail1",
+				"type": "Fail",
+				"dependsOn": [
+					{
+						"activity": "ACT_SPRC-LogError_PL03",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"message": {
+						"value": "@activity('ACT_DBNB01-Validation').error.message",
+						"type": "Expression"
+					},
+					"errorCode": "0001"
 				}
 			}
 		],
