@@ -5,14 +5,7 @@
 			{
 				"name": "ACT_ForEach01-stagingTable",
 				"type": "ForEach",
-				"dependsOn": [
-					{
-						"activity": "ACT_SPRC-LogStart_PL05",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"dependsOn": [],
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
@@ -23,14 +16,7 @@
 						{
 							"name": "ACT_AppVar01-v_scd",
 							"type": "AppendVariable",
-							"dependsOn": [
-								{
-									"activity": "ACT_SPRC-LogStart_foreachScdTable",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
+							"dependsOn": [],
 							"userProperties": [],
 							"typeProperties": {
 								"variableName": "v_scd",
@@ -79,70 +65,6 @@
 									"status": {
 										"value": {
 											"value": "v_scdStatus",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"TableName": {
-										"value": {
-											"value": "@item().table_name",
-											"type": "Expression"
-										},
-										"type": "String"
-									}
-								}
-							},
-							"linkedServiceName": {
-								"referenceName": "LS_ASQL_SalesProjectDB",
-								"type": "LinkedServiceReference"
-							}
-						},
-						{
-							"name": "ACT_SPRC-LogStart_foreachScdTable",
-							"type": "SqlServerStoredProcedure",
-							"dependsOn": [],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"storedProcedureName": "[audit].[sp_log_start]",
-								"storedProcedureParameters": {
-									"MasterPipelineId": {
-										"value": {
-											"value": "@pipeline()?.TriggeredByPipelineRunId",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"MasterPipelineName": {
-										"value": {
-											"value": "@pipeline()?.TriggeredByPipelineName",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"PipelineId": {
-										"value": {
-											"value": "@pipeline().RunId",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"PipelineName": {
-										"value": {
-											"value": "@pipeline().Pipeline",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"SourceSystem": {
-										"value": {
-											"value": "'Ingestion Layer'",
 											"type": "Expression"
 										},
 										"type": "String"
@@ -351,64 +273,6 @@
 							}
 						}
 					]
-				}
-			},
-			{
-				"name": "ACT_SPRC-LogStart_PL05",
-				"type": "SqlServerStoredProcedure",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"storedProcedureName": "[audit].[sp_log_start]",
-					"storedProcedureParameters": {
-						"MasterPipelineId": {
-							"value": {
-								"value": "@pipeline()?.TriggeredByPipelineRunId",
-								"type": "Expression"
-							},
-							"type": "String"
-						},
-						"MasterPipelineName": {
-							"value": {
-								"value": "@pipeline()?.TriggeredByPipelineName",
-								"type": "Expression"
-							},
-							"type": "String"
-						},
-						"PipelineId": {
-							"value": {
-								"value": "@pipeline().RunId",
-								"type": "Expression"
-							},
-							"type": "String"
-						},
-						"PipelineName": {
-							"value": {
-								"value": "@pipeline().Pipeline",
-								"type": "Expression"
-							},
-							"type": "String"
-						},
-						"SourceSystem": {
-							"value": null,
-							"type": "String"
-						},
-						"TableName": {
-							"value": null,
-							"type": "String"
-						}
-					}
-				},
-				"linkedServiceName": {
-					"referenceName": "LS_ASQL_SalesProjectDB",
-					"type": "LinkedServiceReference"
 				}
 			},
 			{
