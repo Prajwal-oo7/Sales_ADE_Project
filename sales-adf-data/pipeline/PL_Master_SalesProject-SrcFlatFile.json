@@ -522,7 +522,7 @@
 				}
 			},
 			{
-				"name": "ACT_SPRC01-LogError_MasterPL",
+				"name": "ACT_SPRC01-LogError_MasterPL_fullLoad",
 				"type": "SqlServerStoredProcedure",
 				"dependsOn": [
 					{
@@ -544,59 +544,89 @@
 					"storedProcedureName": "[audit].[sp_log_fail_error]",
 					"storedProcedureParameters": {
 						"ActivityName": {
-							"value": "",
+							"value": {
+								"value": "'ACT_EXEPL01-FullLoad_IngestionValidation'",
+								"type": "Expression"
+							},
 							"type": "String"
 						},
 						"endTime": {
-							"value": "",
+							"value": {
+								"value": "@activity('ACT_EXEPL01-FullLoad_IngestionValidation').output.executionDetails[0].end",
+								"type": "Expression"
+							},
 							"type": "DateTime"
 						},
 						"ErrorDateTime": {
-							"value": "",
+							"value": {
+								"value": "@utcNow()",
+								"type": "Expression"
+							},
 							"type": "DateTime"
 						},
 						"ErrorDesc": {
-							"value": "",
+							"value": "@string(join(variables('v_plErrorList'), '\\n'))",
 							"type": "String"
 						},
 						"MasterPipelineId": {
-							"value": "",
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
 							"type": "String"
 						},
 						"MasterPipelineName": {
-							"value": "",
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
 							"type": "String"
 						},
 						"PipelineId": {
-							"value": "",
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
 							"type": "String"
 						},
 						"PipelineName": {
-							"value": "",
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
 							"type": "String"
 						},
 						"SourceCount": {
-							"value": "",
+							"value": null,
 							"type": "Int64"
 						},
 						"SourceSystem": {
-							"value": "",
+							"value": {
+								"value": "'BLOB_PP01'",
+								"type": "Expression"
+							},
 							"type": "String"
 						},
 						"startTime": {
-							"value": "",
+							"value": {
+								"value": "@activity('ACT_EXEPL01-FullLoad_IngestionValidation').output.executionDetails[0].start",
+								"type": "Expression"
+							},
 							"type": "DateTime"
 						},
 						"status": {
-							"value": "",
+							"value": {
+								"value": "'Fail'",
+								"type": "Expression"
+							},
 							"type": "String"
 						},
 						"TableName": {
-							"value": "",
+							"value": null,
 							"type": "String"
 						},
 						"TargetCount": {
-							"value": "",
+							"value": null,
 							"type": "Int64"
 						}
 					}
@@ -628,6 +658,31 @@
 				"typeProperties": {
 					"storedProcedureName": "[audit].[sp_log_success]",
 					"storedProcedureParameters": {
+						"ActivityName": {
+							"value": null,
+							"type": "String"
+						},
+						"endTime": {
+							"value": {
+								"value": "@activity('ACT_EXEPL04-EmailAlert').output.executionDetails[0].end",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
+						"MasterPipelineId": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"MasterPipelineName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
 						"PipelineId": {
 							"value": {
 								"value": "@pipeline().RunId",
@@ -635,9 +690,34 @@
 							},
 							"type": "String"
 						},
+						"PipelineName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
 						"SourceCount": {
 							"value": null,
 							"type": "Int64"
+						},
+						"SourceSystem": {
+							"value": null,
+							"type": "String"
+						},
+						"startTime": {
+							"value": {
+								"value": "@activity('ACT_EXEPL01-FullLoad_IngestionValidation').output.executionDetails[0].start",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
+						"status": {
+							"value": {
+								"value": "'Success'",
+								"type": "Expression"
+							},
+							"type": "String"
 						},
 						"TableName": {
 							"value": null,
@@ -655,7 +735,7 @@
 				}
 			},
 			{
-				"name": "ACT_SPRC02-LogError_MasterPL",
+				"name": "ACT_SPRC02-LogError_MasterPL_incrLoad",
 				"type": "SqlServerStoredProcedure",
 				"dependsOn": [
 					{
@@ -674,7 +754,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"storedProcedureName": "[audit].[sp_log_error]",
+					"storedProcedureName": "[audit].[sp_log_fail_error]",
 					"storedProcedureParameters": {
 						"ActivityName": {
 							"value": {
@@ -683,11 +763,22 @@
 							},
 							"type": "String"
 						},
-						"ErrorDesc": {
+						"endTime": {
 							"value": {
-								"value": "@variables('v_plErrorList')",
+								"value": "@activity('ACT_EXEPL02-EXT_SqlServer_Sales_IncrLoad').output.executionDetails[0].end",
 								"type": "Expression"
 							},
+							"type": "DateTime"
+						},
+						"ErrorDateTime": {
+							"value": {
+								"value": "@utcNow()",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
+						"ErrorDesc": {
+							"value": "@string(join(variables('v_plErrorList'), '\\n'))",
 							"type": "String"
 						},
 						"MasterPipelineId": {
@@ -718,9 +809,38 @@
 							},
 							"type": "String"
 						},
+						"SourceCount": {
+							"value": null,
+							"type": "Int64"
+						},
+						"SourceSystem": {
+							"value": {
+								"value": "'SQL0001'",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"startTime": {
+							"value": {
+								"value": "@activity('ACT_EXEPL02-EXT_SqlServer_Sales_IncrLoad').output.executionDetails[0].start",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
+						"status": {
+							"value": {
+								"value": "'Fail'",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
 						"TableName": {
 							"value": null,
 							"type": "String"
+						},
+						"TargetCount": {
+							"value": null,
+							"type": "Int64"
 						}
 					}
 				},
@@ -730,7 +850,7 @@
 				}
 			},
 			{
-				"name": "ACT_SPRC03-LogError_MasterPL",
+				"name": "ACT_SPRC03-LogError_MasterPL_ADB_validation",
 				"type": "SqlServerStoredProcedure",
 				"dependsOn": [
 					{
@@ -749,7 +869,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"storedProcedureName": "[audit].[sp_log_error]",
+					"storedProcedureName": "[audit].[sp_log_fail_error]",
 					"storedProcedureParameters": {
 						"ActivityName": {
 							"value": {
@@ -758,11 +878,22 @@
 							},
 							"type": "String"
 						},
-						"ErrorDesc": {
+						"endTime": {
 							"value": {
-								"value": "@variables('v_plErrorList')",
+								"value": "@activity('ACT_EXEPL03-Validate_FullLoad_IncrementalLoad').output.executionDetails[0].end",
 								"type": "Expression"
 							},
+							"type": "DateTime"
+						},
+						"ErrorDateTime": {
+							"value": {
+								"value": "@utcNow()",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
+						"ErrorDesc": {
+							"value": "@string(join(variables('v_plErrorList'), '\\n'))",
 							"type": "String"
 						},
 						"MasterPipelineId": {
@@ -793,9 +924,38 @@
 							},
 							"type": "String"
 						},
+						"SourceCount": {
+							"value": null,
+							"type": "Int64"
+						},
+						"SourceSystem": {
+							"value": {
+								"value": "'RAW_LAYER_VALIDATION'",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"startTime": {
+							"value": {
+								"value": "@activity('ACT_EXEPL03-Validate_FullLoad_IncrementalLoad').output.executionDetails[0].start",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
+						"status": {
+							"value": {
+								"value": "'Fail'",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
 						"TableName": {
 							"value": null,
 							"type": "String"
+						},
+						"TargetCount": {
+							"value": null,
+							"type": "Int64"
 						}
 					}
 				},
@@ -805,7 +965,7 @@
 				}
 			},
 			{
-				"name": "ACT_SPRC04-LogError_MasterPL",
+				"name": "ACT_SPRC04-LogError_MasterPL_SCD",
 				"type": "SqlServerStoredProcedure",
 				"dependsOn": [
 					{
@@ -824,7 +984,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"storedProcedureName": "[audit].[sp_log_error]",
+					"storedProcedureName": "[audit].[sp_log_fail_error]",
 					"storedProcedureParameters": {
 						"ActivityName": {
 							"value": {
@@ -833,11 +993,22 @@
 							},
 							"type": "String"
 						},
-						"ErrorDesc": {
+						"endTime": {
 							"value": {
-								"value": "@variables('v_plErrorList')",
+								"value": "@activity('ExePL05-SCD').output.executionDetails[0].end",
 								"type": "Expression"
 							},
+							"type": "DateTime"
+						},
+						"ErrorDateTime": {
+							"value": {
+								"value": "@utcNow()",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
+						"ErrorDesc": {
+							"value": "@string(join(variables('v_plErrorList'), '\\n'))",
 							"type": "String"
 						},
 						"MasterPipelineId": {
@@ -868,9 +1039,38 @@
 							},
 							"type": "String"
 						},
+						"SourceCount": {
+							"value": null,
+							"type": "Int64"
+						},
+						"SourceSystem": {
+							"value": {
+								"value": "'INGESTION_LAYER_VALID_DATA'",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"startTime": {
+							"value": {
+								"value": "@activity('ExePL05-SCD').output.executionDetails[0].start",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
+						"status": {
+							"value": {
+								"value": "'Fail'",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
 						"TableName": {
 							"value": null,
 							"type": "String"
+						},
+						"TargetCount": {
+							"value": null,
+							"type": "Int64"
 						}
 					}
 				},
