@@ -5,14 +5,7 @@
 			{
 				"name": "ACT_IF01-isPipelineFailed",
 				"type": "IfCondition",
-				"dependsOn": [
-					{
-						"activity": "ACT_SPRC-LogStart_PL04",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"dependsOn": [],
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
@@ -65,64 +58,6 @@
 							}
 						}
 					]
-				}
-			},
-			{
-				"name": "ACT_SPRC-LogStart_PL04",
-				"type": "SqlServerStoredProcedure",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"storedProcedureName": "[audit].[sp_log_start]",
-					"storedProcedureParameters": {
-						"MasterPipelineId": {
-							"value": {
-								"value": "@pipeline()?.TriggeredByPipelineRunId",
-								"type": "Expression"
-							},
-							"type": "String"
-						},
-						"MasterPipelineName": {
-							"value": {
-								"value": "@pipeline()?.TriggeredByPipelineName",
-								"type": "Expression"
-							},
-							"type": "String"
-						},
-						"PipelineId": {
-							"value": {
-								"value": "@pipeline().RunId",
-								"type": "Expression"
-							},
-							"type": "String"
-						},
-						"PipelineName": {
-							"value": {
-								"value": "@pipeline().Pipeline",
-								"type": "Expression"
-							},
-							"type": "String"
-						},
-						"SourceSystem": {
-							"value": null,
-							"type": "String"
-						},
-						"TableName": {
-							"value": null,
-							"type": "String"
-						}
-					}
-				},
-				"linkedServiceName": {
-					"referenceName": "LS_ASQL_SalesProjectDB",
-					"type": "LinkedServiceReference"
 				}
 			},
 			{
