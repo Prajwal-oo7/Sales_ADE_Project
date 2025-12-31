@@ -5,14 +5,7 @@
 			{
 				"name": "ACT_LKP01-Read_sales_watermarkTB",
 				"type": "Lookup",
-				"dependsOn": [
-					{
-						"activity": "ACT_SPRC-LogStart_PL02",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -61,14 +54,7 @@
 						{
 							"name": "ACT_LKP02-Get_mpv_of_watermark_col",
 							"type": "Lookup",
-							"dependsOn": [
-								{
-									"activity": "ACT_SPRC01-LogStart-for_each_copy",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
+							"dependsOn": [],
 							"policy": {
 								"timeout": "0.12:00:00",
 								"retry": 0,
@@ -367,7 +353,7 @@
 							}
 						},
 						{
-							"name": "ACT_IF02-isCopySuccessful",
+							"name": "ACT_IF02-isCopySuccessful_srcCount_equals_sinkCount",
 							"type": "IfCondition",
 							"dependsOn": [
 								{
@@ -380,7 +366,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@variables('v_isCopySuccessful')",
+									"value": "@equals(variables('v_rowsRead'),variables('v_rowsCopied'))",
 									"type": "Expression"
 								},
 								"ifFalseActivities": [
@@ -558,16 +544,9 @@
 										}
 									},
 									{
-										"name": "ACT_SPRC03-LogError-ForEachCopy_1",
+										"name": "ACT_SPRC03-LogError-ForEachCopy-incomplete",
 										"type": "SqlServerStoredProcedure",
-										"dependsOn": [
-											{
-												"activity": "ACT_AppVar03-v_ErrorMsg",
-												"dependencyConditions": [
-													"Succeeded"
-												]
-											}
-										],
+										"dependsOn": [],
 										"policy": {
 											"timeout": "0.12:00:00",
 											"retry": 0,
@@ -577,7 +556,7 @@
 										},
 										"userProperties": [],
 										"typeProperties": {
-											"storedProcedureName": "[audit].[sp_log_error]",
+											"storedProcedureName": "[audit].[sp_log_fail_error]",
 											"storedProcedureParameters": {
 												"ActivityName": {
 													"value": {
@@ -586,9 +565,23 @@
 													},
 													"type": "String"
 												},
+												"endTime": {
+													"value": {
+														"value": "@utcNow()",
+														"type": "Expression"
+													},
+													"type": "DateTime"
+												},
+												"ErrorDateTime": {
+													"value": {
+														"value": "@utcNow()",
+														"type": "Expression"
+													},
+													"type": "DateTime"
+												},
 												"ErrorDesc": {
 													"value": {
-														"value": "@variables('v_ErrorMsg')",
+														"value": "@string(join(variables('v_ErrorMsg'), '\\n'))",
 														"type": "Expression"
 													},
 													"type": "String"
@@ -621,12 +614,47 @@
 													},
 													"type": "String"
 												},
+												"SourceCount": {
+													"value": {
+														"value": "@variables('v_rowsRead')",
+														"type": "Expression"
+													},
+													"type": "Int64"
+												},
+												"SourceSystem": {
+													"value": {
+														"value": "'SQL_SERVER_0001'",
+														"type": "Expression"
+													},
+													"type": "String"
+												},
+												"startTime": {
+													"value": {
+														"value": "@variables('v_Timestamp')",
+														"type": "Expression"
+													},
+													"type": "DateTime"
+												},
+												"status": {
+													"value": {
+														"value": "'Fail'",
+														"type": "Expression"
+													},
+													"type": "String"
+												},
 												"TableName": {
 													"value": {
 														"value": "@string(concat(item().src_schema,'.',item().src_table))",
 														"type": "Expression"
 													},
 													"type": "String"
+												},
+												"TargetCount": {
+													"value": {
+														"value": "@variables('v_rowsCopied')",
+														"type": "Expression"
+													},
+													"type": "Int64"
 												}
 											}
 										},
@@ -699,9 +727,9 @@
 										"type": "AppendVariable",
 										"dependsOn": [
 											{
-												"activity": "ACT_STPRC-usp_upd_sales_watermarkTB",
+												"activity": "ACT_SetVar04-v_isActivityFailed",
 												"dependencyConditions": [
-													"Failed"
+													"Succeeded"
 												]
 											}
 										],
@@ -756,9 +784,44 @@
 										"typeProperties": {
 											"storedProcedureName": "[audit].[sp_log_success]",
 											"storedProcedureParameters": {
+												"ActivityName": {
+													"value": {
+														"value": "'ACT_COPY-IncrementalData_From_SqlServer_To_AdlsRaw'",
+														"type": "Expression"
+													},
+													"type": "String"
+												},
+												"endTime": {
+													"value": {
+														"value": "@utcNow()",
+														"type": "Expression"
+													},
+													"type": "DateTime"
+												},
+												"MasterPipelineId": {
+													"value": {
+														"value": "@pipeline()?.TriggeredByPipelineRunId",
+														"type": "Expression"
+													},
+													"type": "String"
+												},
+												"MasterPipelineName": {
+													"value": {
+														"value": "@pipeline()?.TriggeredByPipelineName",
+														"type": "Expression"
+													},
+													"type": "String"
+												},
 												"PipelineId": {
 													"value": {
 														"value": "@pipeline().RunId",
+														"type": "Expression"
+													},
+													"type": "String"
+												},
+												"PipelineName": {
+													"value": {
+														"value": "@pipeline().Pipeline",
 														"type": "Expression"
 													},
 													"type": "String"
@@ -769,6 +832,27 @@
 														"type": "Expression"
 													},
 													"type": "Int64"
+												},
+												"SourceSystem": {
+													"value": {
+														"value": "'SQL_SERVER_0001'",
+														"type": "Expression"
+													},
+													"type": "String"
+												},
+												"startTime": {
+													"value": {
+														"value": "@variables('v_Timestamp')",
+														"type": "Expression"
+													},
+													"type": "DateTime"
+												},
+												"status": {
+													"value": {
+														"value": "'Success'",
+														"type": "Expression"
+													},
+													"type": "String"
 												},
 												"TableName": {
 													"value": {
@@ -795,70 +879,6 @@
 							}
 						},
 						{
-							"name": "ACT_SPRC01-LogStart-for_each_copy",
-							"type": "SqlServerStoredProcedure",
-							"dependsOn": [],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"storedProcedureName": "[audit].[sp_log_start]",
-								"storedProcedureParameters": {
-									"MasterPipelineId": {
-										"value": {
-											"value": "@pipeline()?.TriggeredByPipelineRunId",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"MasterPipelineName": {
-										"value": {
-											"value": "@pipeline()?.TriggeredByPipelineName",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"PipelineId": {
-										"value": {
-											"value": "@pipeline().RunId",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"PipelineName": {
-										"value": {
-											"value": "@pipeline().Pipeline",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"SourceSystem": {
-										"value": {
-											"value": "'On-prem sql server'",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"TableName": {
-										"value": {
-											"value": "@string(concat(item().src_schema,'.',item().src_table))",
-											"type": "Expression"
-										},
-										"type": "String"
-									}
-								}
-							},
-							"linkedServiceName": {
-								"referenceName": "LS_ASQL_SalesProjectDB",
-								"type": "LinkedServiceReference"
-							}
-						},
-						{
 							"name": "ACT_SPRC03-LogError-ForEachCopy",
 							"type": "SqlServerStoredProcedure",
 							"dependsOn": [
@@ -878,18 +898,32 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"storedProcedureName": "[audit].[sp_log_error]",
+								"storedProcedureName": "[audit].[sp_log_fail_error]",
 								"storedProcedureParameters": {
 									"ActivityName": {
 										"value": {
-											"value": "'ACT_ForEach01-iterateOverWatermarkTB'",
+											"value": "'ACT_COPY-IncrementalData_From_SqlServer_To_AdlsRaw'",
 											"type": "Expression"
 										},
 										"type": "String"
 									},
+									"endTime": {
+										"value": {
+											"value": "@activity('ACT_COPY-IncrementalData_From_SqlServer_To_AdlsRaw').output.executionDetails[0].end",
+											"type": "Expression"
+										},
+										"type": "DateTime"
+									},
+									"ErrorDateTime": {
+										"value": {
+											"value": "@utcNow()",
+											"type": "Expression"
+										},
+										"type": "DateTime"
+									},
 									"ErrorDesc": {
 										"value": {
-											"value": "@variables('v_ErrorMsg')",
+											"value": "@activity('ACT_COPY-IncrementalData_From_SqlServer_To_AdlsRaw').error.message",
 											"type": "Expression"
 										},
 										"type": "String"
@@ -922,12 +956,41 @@
 										},
 										"type": "String"
 									},
+									"SourceCount": {
+										"value": null,
+										"type": "Int64"
+									},
+									"SourceSystem": {
+										"value": {
+											"value": "'SQL_SERVER_0001'",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"startTime": {
+										"value": {
+											"value": "@activity('ACT_COPY-IncrementalData_From_SqlServer_To_AdlsRaw').output.executionDetails[0].start",
+											"type": "Expression"
+										},
+										"type": "DateTime"
+									},
+									"status": {
+										"value": {
+											"value": "'Fail'",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
 									"TableName": {
 										"value": {
 											"value": "@string(concat(item().src_schema,'.',item().src_table))",
 											"type": "Expression"
 										},
 										"type": "String"
+									},
+									"TargetCount": {
+										"value": null,
+										"type": "Int64"
 									}
 								}
 							},
@@ -1153,67 +1216,6 @@
 							}
 						}
 					]
-				}
-			},
-			{
-				"name": "ACT_SPRC-LogStart_PL02",
-				"type": "SqlServerStoredProcedure",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"storedProcedureName": "[audit].[sp_log_start]",
-					"storedProcedureParameters": {
-						"MasterPipelineId": {
-							"value": {
-								"value": "@pipeline()?.TriggeredByPipelineRunId",
-								"type": "Expression"
-							},
-							"type": "String"
-						},
-						"MasterPipelineName": {
-							"value": {
-								"value": "@pipeline()?.TriggeredByPipelineName",
-								"type": "Expression"
-							},
-							"type": "String"
-						},
-						"PipelineId": {
-							"value": {
-								"value": "@pipeline().RunId",
-								"type": "Expression"
-							},
-							"type": "String"
-						},
-						"PipelineName": {
-							"value": {
-								"value": "@pipeline().Pipeline",
-								"type": "Expression"
-							},
-							"type": "String"
-						},
-						"SourceSystem": {
-							"value": {
-								"value": "'On-prem SQl Server'",
-								"type": "Expression"
-							},
-							"type": "String"
-						},
-						"TableName": {
-							"value": null,
-							"type": "String"
-						}
-					}
-				},
-				"linkedServiceName": {
-					"referenceName": "LS_ASQL_SalesProjectDB",
-					"type": "LinkedServiceReference"
 				}
 			}
 		],
