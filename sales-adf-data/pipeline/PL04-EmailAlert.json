@@ -5,7 +5,14 @@
 			{
 				"name": "ACT_IF01-isPipelineFailed",
 				"type": "IfCondition",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "ACT_SetVar01-v_pipelineStartTime",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
@@ -33,6 +40,30 @@
 									"type": "Expression"
 								}
 							}
+						},
+						{
+							"name": "ACT_SetVar-v_ErrorMsg_copy1",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "ACT_WEB02-emailAlert_PLSucceed",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "v_ErrorMsg",
+								"value": {
+									"value": "@activity('ACT_WEB02-emailAlert_PLSucceed').error.message",
+									"type": "Expression"
+								}
+							}
 						}
 					],
 					"ifTrueActivities": [
@@ -53,6 +84,30 @@
 								"url": "https://prod-22.centralindia.logic.azure.com:443/workflows/30a1424665eb45ff9ea326f516987a6c/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=YFp7ksKnI1OjfhlmCKqwsqcCHds5ZM1CchcIDD_n4vA",
 								"body": {
 									"value": "{\n\"DataFactoryName\":\"@{pipeline().DataFactory}\",\n\"EmailTo\":\"prajwal007042001@gmail.com\",\n\"Subject\":\"Pipeline is Failed\",\n\"PipelineName\":\"@{pipeline().Pipeline}\",\n\"status\":\"Failed\",\n\"ErrorMessage\":\"@{pipeline().parameters.plp_plErrorSummary}\",\n\"runId\": \"@{pipeline().RunId}\",\n\"time\": \"@{pipeline().TriggerTime}\"\n}",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "ACT_SetVar-v_ErrorMsg",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "ACT_WEB01-emailAlert_PLFailed",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "v_ErrorMsg",
+								"value": {
+									"value": "@activity('ACT_WEB01-emailAlert_PLFailed').error.message",
 									"type": "Expression"
 								}
 							}
@@ -82,6 +137,34 @@
 				"typeProperties": {
 					"storedProcedureName": "[audit].[sp_log_success]",
 					"storedProcedureParameters": {
+						"ActivityName": {
+							"value": {
+								"value": "'ACT_WEB01-emailAlert'",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"endTime": {
+							"value": {
+								"value": "@utcNow()",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
+						"MasterPipelineId": {
+							"value": {
+								"value": "@pipeline()?.TriggeredByPipelineRunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"MasterPipelineName": {
+							"value": {
+								"value": "@pipeline()?.TriggeredByPipelineName",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
 						"PipelineId": {
 							"value": {
 								"value": "@pipeline().RunId",
@@ -89,9 +172,34 @@
 							},
 							"type": "String"
 						},
+						"PipelineName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
 						"SourceCount": {
 							"value": null,
 							"type": "Int64"
+						},
+						"SourceSystem": {
+							"value": null,
+							"type": "String"
+						},
+						"startTime": {
+							"value": {
+								"value": "@variables('v_pipelineStartTime')",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
+						"status": {
+							"value": {
+								"value": "'Success'",
+								"type": "Expression"
+							},
+							"type": "String"
 						},
 						"TableName": {
 							"value": null,
@@ -106,6 +214,23 @@
 				"linkedServiceName": {
 					"referenceName": "LS_ASQL_SalesProjectDB",
 					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "ACT_SetVar01-v_pipelineStartTime",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_pipelineStartTime",
+					"value": {
+						"value": "@utcNow()",
+						"type": "Expression"
+					}
 				}
 			},
 			{
@@ -128,7 +253,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"storedProcedureName": "[audit].[sp_log_error]",
+					"storedProcedureName": "[audit].[sp_log_fail_error]",
 					"storedProcedureParameters": {
 						"ActivityName": {
 							"value": {
@@ -137,9 +262,23 @@
 							},
 							"type": "String"
 						},
+						"endTime": {
+							"value": {
+								"value": "@utcNow()",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
+						"ErrorDateTime": {
+							"value": {
+								"value": "@utcNow()",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
 						"ErrorDesc": {
 							"value": {
-								"value": "@activity('ACT_WEB01-emailAlert_PLFailed').error.message",
+								"value": "@variables('v_ErrorMsg')",
 								"type": "Expression"
 							},
 							"type": "String"
@@ -172,9 +311,35 @@
 							},
 							"type": "String"
 						},
+						"SourceCount": {
+							"value": null,
+							"type": "Int64"
+						},
+						"SourceSystem": {
+							"value": null,
+							"type": "String"
+						},
+						"startTime": {
+							"value": {
+								"value": "@variables('v_pipelineStartTime')",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
+						"status": {
+							"value": {
+								"value": "'Fail'",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
 						"TableName": {
 							"value": null,
 							"type": "String"
+						},
+						"TargetCount": {
+							"value": null,
+							"type": "Int64"
 						}
 					}
 				},
@@ -192,6 +357,14 @@
 			"plp_isPipelineFailed": {
 				"type": "bool",
 				"defaultValue": false
+			}
+		},
+		"variables": {
+			"v_pipelineStartTime": {
+				"type": "String"
+			},
+			"v_ErrorMsg": {
+				"type": "String"
 			}
 		},
 		"folder": {
