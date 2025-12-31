@@ -1023,14 +1023,7 @@
 						{
 							"name": "ACT_SetVar06-pl01rv_targetFileDetails",
 							"type": "SetVariable",
-							"dependsOn": [
-								{
-									"activity": "ACT_SPRC-LogSuccess-PL02",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
+							"dependsOn": [],
 							"policy": {
 								"secureOutput": false,
 								"secureInput": false
@@ -1053,7 +1046,14 @@
 						{
 							"name": "ACT_SPRC-LogSuccess-PL02",
 							"type": "SqlServerStoredProcedure",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "ACT_SetVar06-pl01rv_targetFileDetails",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "0.12:00:00",
 								"retry": 0,
@@ -1065,6 +1065,31 @@
 							"typeProperties": {
 								"storedProcedureName": "[audit].[sp_log_success]",
 								"storedProcedureParameters": {
+									"ActivityName": {
+										"value": null,
+										"type": "String"
+									},
+									"endTime": {
+										"value": {
+											"value": "@utcNow()",
+											"type": "Expression"
+										},
+										"type": "DateTime"
+									},
+									"MasterPipelineId": {
+										"value": {
+											"value": "@pipeline()?.TriggeredByPipelineRunId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"MasterPipelineName": {
+										"value": {
+											"value": "@pipeline()?.TriggeredByPipelineName",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
 									"PipelineId": {
 										"value": {
 											"value": "@pipeline().RunId",
@@ -1072,9 +1097,37 @@
 										},
 										"type": "String"
 									},
+									"PipelineName": {
+										"value": {
+											"value": "@pipeline().Pipeline",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
 									"SourceCount": {
 										"value": null,
 										"type": "Int64"
+									},
+									"SourceSystem": {
+										"value": {
+											"value": "'Source_SQL_SERVER_0001'",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"startTime": {
+										"value": {
+											"value": "@activity('ACT_LKP01-Read_sales_watermarkTB').output.executionDetails[0].start",
+											"type": "Expression"
+										},
+										"type": "DateTime"
+									},
+									"status": {
+										"value": {
+											"value": "'Success'",
+											"type": "Expression"
+										},
+										"type": "String"
 									},
 									"TableName": {
 										"value": null,
@@ -1098,7 +1151,7 @@
 							"type": "Fail",
 							"dependsOn": [
 								{
-									"activity": "ACT_SPRC-LogError_PL02",
+									"activity": "ACT_SPRC01-LogError_PL02",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -1144,7 +1197,7 @@
 							}
 						},
 						{
-							"name": "ACT_SPRC-LogError_PL02",
+							"name": "ACT_SPRC01-LogError_PL02",
 							"type": "SqlServerStoredProcedure",
 							"dependsOn": [
 								{
@@ -1163,11 +1216,25 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"storedProcedureName": "[audit].[sp_log_error]",
+								"storedProcedureName": "[audit].[sp_log_fail_error]",
 								"storedProcedureParameters": {
 									"ActivityName": {
 										"value": null,
 										"type": "String"
+									},
+									"endTime": {
+										"value": {
+											"value": "@utcNow()",
+											"type": "Expression"
+										},
+										"type": "DateTime"
+									},
+									"ErrorDateTime": {
+										"value": {
+											"value": "@utcNow()",
+											"type": "Expression"
+										},
+										"type": "DateTime"
 									},
 									"ErrorDesc": {
 										"value": {
@@ -1204,9 +1271,38 @@
 										},
 										"type": "String"
 									},
+									"SourceCount": {
+										"value": null,
+										"type": "Int64"
+									},
+									"SourceSystem": {
+										"value": {
+											"value": "'SQL_SERVER_0001'",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"startTime": {
+										"value": {
+											"value": "@activity('ACT_LKP01-Read_sales_watermarkTB').output.executionDetails[0].start",
+											"type": "Expression"
+										},
+										"type": "DateTime"
+									},
+									"status": {
+										"value": {
+											"value": "'Fail'",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
 									"TableName": {
 										"value": null,
 										"type": "String"
+									},
+									"TargetCount": {
+										"value": null,
+										"type": "Int64"
 									}
 								}
 							},
