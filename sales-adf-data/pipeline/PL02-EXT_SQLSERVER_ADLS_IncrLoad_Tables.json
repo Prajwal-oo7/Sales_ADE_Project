@@ -5,7 +5,14 @@
 			{
 				"name": "ACT_LKP01-Read_sales_watermarkTB",
 				"type": "Lookup",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "SetVar-v_pl02startTime",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -1148,7 +1155,7 @@
 									},
 									"startTime": {
 										"value": {
-											"value": "@activity('ACT_LKP01-Read_sales_watermarkTB').output.executionDetails[0].start",
+											"value": "@variables('v_pl02startTime')",
 											"type": "Expression"
 										},
 										"type": "DateTime"
@@ -1315,7 +1322,7 @@
 									},
 									"startTime": {
 										"value": {
-											"value": "@activity('ACT_LKP01-Read_sales_watermarkTB').output.executionDetails[0].start",
+											"value": "@variables('v_pl02startTime')",
 											"type": "Expression"
 										},
 										"type": "DateTime"
@@ -1344,6 +1351,23 @@
 						}
 					]
 				}
+			},
+			{
+				"name": "SetVar-v_pl02startTime",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_pl02startTime",
+					"value": {
+						"value": "@utcNow()",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"variables": {
@@ -1370,6 +1394,9 @@
 				"type": "Integer"
 			},
 			"v_copyStartTime": {
+				"type": "String"
+			},
+			"v_pl02startTime": {
 				"type": "String"
 			}
 		},
