@@ -57,7 +57,14 @@
 						{
 							"name": "ACT_SetVar01_Timestamp",
 							"type": "SetVariable",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "SetVar-v_copyStartTime",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"secureOutput": false,
 								"secureInput": false
@@ -347,7 +354,7 @@
 												},
 												"startTime": {
 													"value": {
-														"value": "@formatDateTime(convertToUtc(substring(variables('v_Timestamp'), 0, 14), 'India Standard Time'), 'yyyy-MM-ddTHH:mm:ssZ')",
+														"value": "@variables('v_copyStartTime')",
 														"type": "Expression"
 													},
 													"type": "DateTime"
@@ -552,7 +559,7 @@
 												},
 												"startTime": {
 													"value": {
-														"value": "@formatDateTime(convertToUtc(substring(variables('v_Timestamp'), 0, 14), 'India Standard Time'), 'yyyy-MM-ddTHH:mm:ssZ')",
+														"value": "@variables('v_copyStartTime')",
 														"type": "Expression"
 													},
 													"type": "DateTime"
@@ -1308,6 +1315,23 @@
 									}
 								]
 							}
+						},
+						{
+							"name": "SetVar-v_copyStartTime",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "v_copyStartTime",
+								"value": {
+									"value": "@utcNow()",
+									"type": "Expression"
+								}
+							}
 						}
 					]
 				}
@@ -1677,6 +1701,9 @@
 				"type": "String"
 			},
 			"v_Status": {
+				"type": "String"
+			},
+			"v_copyStartTime": {
 				"type": "String"
 			}
 		},
