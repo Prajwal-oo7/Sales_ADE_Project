@@ -36,7 +36,7 @@
 								"method": "POST",
 								"url": "https://prod-22.centralindia.logic.azure.com:443/workflows/30a1424665eb45ff9ea326f516987a6c/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=YFp7ksKnI1OjfhlmCKqwsqcCHds5ZM1CchcIDD_n4vA",
 								"body": {
-									"value": "{\n\"DataFactoryName\":\"@{pipeline().DataFactory}\",\n\"EmailTo\":\"prajwal007042001@gmail.com\",\n\"Subject\":\"Pipeline is Successful\",\n\"PipelineName\":\"@{pipeline().Pipeline}\",\n\"status\":\"Succesful\",\n\"ErrorMessage\":\"No error\",\n\"runId\": \"@{pipeline().RunId}\",\n\"time\": \"@{pipeline().TriggerTime}\"\n}",
+									"value": "{\n\"DataFactoryName\":\"@{pipeline().DataFactory}\",\n\"EmailTo\":\"prajwal007042001@gmail.com\",\n\"Subject\":\"Pipeline is Successful\",\n\"PipelineName\":\"@{pipeline()?.TriggeredByPipelineName}\",\n\"status\":\"Succesful\",\n\"ErrorMessage\":\"No error\",\n\"runId\": \"@{pipeline()?.TriggeredByPipelineRunId}\",\n\"time\": \"@{pipeline().TriggerTime}\"\n}",
 									"type": "Expression"
 								}
 							}
@@ -83,7 +83,7 @@
 								"method": "POST",
 								"url": "https://prod-22.centralindia.logic.azure.com:443/workflows/30a1424665eb45ff9ea326f516987a6c/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=YFp7ksKnI1OjfhlmCKqwsqcCHds5ZM1CchcIDD_n4vA",
 								"body": {
-									"value": "{\n\"DataFactoryName\":\"@{pipeline().DataFactory}\",\n\"EmailTo\":\"prajwal007042001@gmail.com\",\n\"Subject\":\"Pipeline is Failed\",\n\"PipelineName\":\"@{pipeline().Pipeline}\",\n\"status\":\"Failed\",\n\"ErrorMessage\":\"@{pipeline().parameters.plp_plErrorSummary}\",\n\"runId\": \"@{pipeline().RunId}\",\n\"time\": \"@{pipeline().TriggerTime}\"\n}",
+									"value": "{\n\"DataFactoryName\":\"@{pipeline().DataFactory}\",\n\"EmailTo\":\"prajwal007042001@gmail.com\",\n\"Subject\":\"Pipeline is Failed\",\n\"PipelineName\":\"@{pipeline()?.TriggeredByPipelineName}\",\n\"status\":\"Failed\",\n\"ErrorMessage\":\"@{pipeline().parameters.plp_plErrorSummary}\",\n\"runId\": \"@{pipeline()?.TriggeredByPipelineRunId}\",\n\"time\": \"@{pipeline().TriggerTime}\"\n}",
 									"type": "Expression"
 								}
 							}
