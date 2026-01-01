@@ -546,7 +546,14 @@
 									{
 										"name": "ACT_SPRC03-LogError-ForEachCopy-incomplete",
 										"type": "SqlServerStoredProcedure",
-										"dependsOn": [],
+										"dependsOn": [
+											{
+												"activity": "ACT_AppVar03-v_ErrorMsg",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
 										"policy": {
 											"timeout": "0.12:00:00",
 											"retry": 0,
@@ -630,7 +637,7 @@
 												},
 												"startTime": {
 													"value": {
-														"value": "@variables('v_Timestamp')",
+														"value": "@formatDateTime(convertToUtc(substring(variables('v_Timestamp'), 0, 14), 'India Standard Time'), 'yyyy-MM-ddTHH:mm:ssZ')",
 														"type": "Expression"
 													},
 													"type": "DateTime"
@@ -842,7 +849,7 @@
 												},
 												"startTime": {
 													"value": {
-														"value": "@variables('v_Timestamp')",
+														"value": "@formatDateTime(convertToUtc(substring(variables('v_Timestamp'), 0, 14), 'India Standard Time'), 'yyyy-MM-ddTHH:mm:ssZ')",
 														"type": "Expression"
 													},
 													"type": "DateTime"
