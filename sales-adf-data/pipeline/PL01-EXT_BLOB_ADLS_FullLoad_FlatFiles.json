@@ -256,7 +256,14 @@
 									{
 										"name": "ACT_SPRC03-LogError-ForEachCopy-incomplete",
 										"type": "SqlServerStoredProcedure",
-										"dependsOn": [],
+										"dependsOn": [
+											{
+												"activity": "ACT_AppVar01-v_ErrorMsg",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
 										"policy": {
 											"timeout": "0.12:00:00",
 											"retry": 0,
@@ -340,7 +347,7 @@
 												},
 												"startTime": {
 													"value": {
-														"value": "@variables('v_Timestamp')",
+														"value": "@formatDateTime(convertToUtc(substring(variables('v_Timestamp'), 0, 14), 'India Standard Time'), 'yyyy-MM-ddTHH:mm:ssZ')",
 														"type": "Expression"
 													},
 													"type": "DateTime"
@@ -470,7 +477,7 @@
 										"type": "SqlServerStoredProcedure",
 										"dependsOn": [
 											{
-												"activity": "ACT_AppVar00-v_targetFileDetails",
+												"activity": "ACT_STRPRC01-sp_deactivate_full_load",
 												"dependencyConditions": [
 													"Succeeded"
 												]
@@ -545,7 +552,7 @@
 												},
 												"startTime": {
 													"value": {
-														"value": "@variables('v_Timestamp')",
+														"value": "@formatDateTime(convertToUtc(substring(variables('v_Timestamp'), 0, 14), 'India Standard Time'), 'yyyy-MM-ddTHH:mm:ssZ')",
 														"type": "Expression"
 													},
 													"type": "DateTime"
@@ -576,6 +583,26 @@
 										"linkedServiceName": {
 											"referenceName": "LS_ASQL_SalesProjectDB",
 											"type": "LinkedServiceReference"
+										}
+									},
+									{
+										"name": "ACT_AppVar03-v_ErrorMsg_copy1",
+										"type": "AppendVariable",
+										"dependsOn": [
+											{
+												"activity": "ACT_SPRC02-LogSuccess-forEachCopy",
+												"dependencyConditions": [
+													"Failed"
+												]
+											}
+										],
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "v_ErrorMsg",
+											"value": {
+												"value": "@activity('ACT_SPRC02-LogSuccess-forEachCopy').error.message",
+												"type": "Expression"
+											}
 										}
 									}
 								]
@@ -1425,6 +1452,26 @@
 							"linkedServiceName": {
 								"referenceName": "LS_ASQL_SalesProjectDB",
 								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "ACT_AppVar03-v_ErrorMsg_copy2",
+							"type": "AppendVariable",
+							"dependsOn": [
+								{
+									"activity": "ACT_SPRC-LogSuccess-PL01",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "v_ErrorMsg",
+								"value": {
+									"value": "@activity('ACT_SPRC-LogSuccess-PL01').error.message",
+									"type": "Expression"
+								}
 							}
 						}
 					],
