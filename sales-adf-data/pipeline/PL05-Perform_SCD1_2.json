@@ -57,7 +57,7 @@
 								"storedProcedureParameters": {
 									"rows_affected": {
 										"value": {
-											"value": "v_scdRowsAffected",
+											"value": "v_scdRowsAffected_output",
 											"type": "Expression"
 										},
 										"type": "Int32"
@@ -71,7 +71,7 @@
 									},
 									"status": {
 										"value": {
-											"value": "v_scdStatus",
+											"value": "v_scdStatus_output",
 											"type": "Expression"
 										},
 										"type": "String"
@@ -104,7 +104,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@equals(variables('v_scdRowsAffected'), 0)",
+									"value": "@equals(variables('v_scdRowsAffected_output'), 0)",
 									"type": "Expression"
 								},
 								"ifFalseActivities": [
@@ -188,7 +188,7 @@
 												},
 												"status": {
 													"value": {
-														"value": "@variables('v_scdStatus')",
+														"value": "@variables('v_scdStatus_output')",
 														"type": "Expression"
 													},
 													"type": "String"
@@ -202,7 +202,7 @@
 												},
 												"TargetCount": {
 													"value": {
-														"value": "@variables('v_scdRowsAffected')",
+														"value": "@variables('v_scdRowsAffected_output')",
 														"type": "Expression"
 													},
 													"type": "Int64"
@@ -261,7 +261,7 @@
 												},
 												"ErrorDesc": {
 													"value": {
-														"value": "@string(concat(item().table_name,': ',variables('v_scdStatus')))",
+														"value": "@string(concat(item().table_name,': ',variables('v_scdStatus_output')))",
 														"type": "Expression"
 													},
 													"type": "String"
@@ -348,7 +348,7 @@
 										"typeProperties": {
 											"variableName": "v_ErrorMsg",
 											"value": {
-												"value": "@variables('v_scdStatus')",
+												"value": "@variables('v_scdStatus_output')",
 												"type": "Expression"
 											}
 										}
@@ -659,7 +659,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"message": {
-									"value": "@variables('v_ErrorMsg')",
+									"value": "@string(join(variables('v_ErrorMsg'), '\\n'))",
 									"type": "Expression"
 								},
 								"errorCode": "0003"
@@ -806,10 +806,10 @@
 			"v_scd": {
 				"type": "Array"
 			},
-			"v_scdStatus": {
+			"v_scdStatus_output": {
 				"type": "String"
 			},
-			"v_scdRowsAffected": {
+			"v_scdRowsAffected_output": {
 				"type": "Integer"
 			},
 			"v_isActivityFailed": {
