@@ -1319,7 +1319,7 @@
 					{
 						"activity": "ACT_ForEach01_FileInConfig",
 						"dependencyConditions": [
-							"Succeeded"
+							"Completed"
 						]
 					}
 				],
