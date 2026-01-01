@@ -5,7 +5,14 @@
 			{
 				"name": "ACT_DBNB01-Validation",
 				"type": "DatabricksNotebook",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "SetVar-v_pl03startTime",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -89,7 +96,7 @@
 						},
 						"endTime": {
 							"value": {
-								"value": "@activity('ACT_DBNB01-Validation').output.executionDetails[0].end",
+								"value": "@utcNow()",
 								"type": "Expression"
 							},
 							"type": "DateTime"
@@ -135,7 +142,7 @@
 						},
 						"startTime": {
 							"value": {
-								"value": "@activity('ACT_DBNB01-Validation').output.executionDetails[0].start",
+								"value": "@variables('v_pl03startTime')",
 								"type": "Expression"
 							},
 							"type": "DateTime"
@@ -193,7 +200,7 @@
 						},
 						"endTime": {
 							"value": {
-								"value": "@activity('ACT_DBNB01-Validation').output.executionDetails[0].end",
+								"value": "@utcNow()",
 								"type": "Expression"
 							},
 							"type": "DateTime"
@@ -246,14 +253,14 @@
 						},
 						"SourceSystem": {
 							"value": {
-								"value": "'BLOB_PP01'",
+								"value": "'RAW Layer'",
 								"type": "Expression"
 							},
 							"type": "String"
 						},
 						"startTime": {
 							"value": {
-								"value": "@activity('ACT_DBNB01-Validation').output.executionDetails[0].start",
+								"value": "@variables('v_pl03startTime')",
 								"type": "Expression"
 							},
 							"type": "DateTime"
@@ -299,11 +306,33 @@
 					},
 					"errorCode": "0001"
 				}
+			},
+			{
+				"name": "SetVar-v_pl03startTime",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_pl03startTime",
+					"value": {
+						"value": "@utcNow()",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"parameters": {
 			"plp_targetFileJSON": {
 				"type": "string"
+			}
+		},
+		"variables": {
+			"v_pl03startTime": {
+				"type": "String"
 			}
 		},
 		"folder": {
