@@ -147,18 +147,6 @@
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "ACT_ForEach01-targetFile",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					},
-					{
-						"activity": "ACT_ForEach02-targetFile",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					},
-					{
 						"activity": "SetVar00-v_pl03startTime",
 						"dependencyConditions": [
 							"Succeeded"
@@ -377,7 +365,7 @@
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "Act_SetVar08-v_scdMetadata",
+						"activity": "SetVar00_v_pl05startTime",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -1024,7 +1012,7 @@
 						},
 						"endTime": {
 							"value": {
-								"value": "@activity('ExePL05-SCD').output.executionDetails[0].end",
+								"value": "@utcNow()",
 								"type": "Expression"
 							},
 							"type": "DateTime"
@@ -1084,7 +1072,7 @@
 						},
 						"startTime": {
 							"value": {
-								"value": "@activity('ExePL05-SCD').output.executionDetails[0].start",
+								"value": "@variables('v_pl05startTime')",
 								"type": "Expression"
 							},
 							"type": "DateTime"
@@ -1131,7 +1119,20 @@
 			{
 				"name": "SetVar00-v_pl03startTime",
 				"type": "SetVariable",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "ACT_ForEach01-targetFile",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "ACT_ForEach02-targetFile",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"secureOutput": false,
 					"secureInput": false
@@ -1139,6 +1140,30 @@
 				"userProperties": [],
 				"typeProperties": {
 					"variableName": "v_pl03startTime",
+					"value": {
+						"value": "@utcNow()",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SetVar00_v_pl05startTime",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Act_SetVar08-v_scdMetadata",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_pl05startTime",
 					"value": {
 						"value": "@utcNow()",
 						"type": "Expression"
@@ -1167,6 +1192,9 @@
 				"type": "String"
 			},
 			"v_pl03startTime": {
+				"type": "String"
+			},
+			"v_pl05startTime": {
 				"type": "String"
 			}
 		},
