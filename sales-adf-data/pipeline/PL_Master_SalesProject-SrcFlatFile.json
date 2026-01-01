@@ -782,7 +782,7 @@
 						},
 						"endTime": {
 							"value": {
-								"value": "@activity('ACT_EXEPL02-EXT_SqlServer_Sales_IncrLoad').output.executionDetails[0].end",
+								"value": "@utcNow()",
 								"type": "Expression"
 							},
 							"type": "DateTime"
@@ -842,7 +842,7 @@
 						},
 						"startTime": {
 							"value": {
-								"value": "@activity('ACT_EXEPL02-EXT_SqlServer_Sales_IncrLoad').output.executionDetails[0].start",
+								"value": "@variables('v_pipelineStartTime')",
 								"type": "Expression"
 							},
 							"type": "DateTime"
