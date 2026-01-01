@@ -5,7 +5,14 @@
 			{
 				"name": "ACT_EXEPL01-FullLoad_IngestionValidation",
 				"type": "ExecutePipeline",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "ACT_SetVar00-PL_startTime",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"secureInput": false
 				},
@@ -21,7 +28,14 @@
 			{
 				"name": "ACT_EXEPL02-EXT_SqlServer_Sales_IncrLoad",
 				"type": "ExecutePipeline",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "ACT_SetVar00-PL_startTime",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"secureInput": false
 				},
@@ -489,7 +503,7 @@
 				}
 			},
 			{
-				"name": "ACT_EXEPL04-EmailAlert_copy1_copy3",
+				"name": "ACT_EXEPL04-EmailAlert_PL01_fail",
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
@@ -552,7 +566,7 @@
 						},
 						"endTime": {
 							"value": {
-								"value": "@activity('ACT_EXEPL01-FullLoad_IngestionValidation').output.executionDetails[0].end",
+								"value": "@utcNow()",
 								"type": "Expression"
 							},
 							"type": "DateTime"
@@ -565,7 +579,10 @@
 							"type": "DateTime"
 						},
 						"ErrorDesc": {
-							"value": "@string(join(variables('v_plErrorList'), '\\n'))",
+							"value": {
+								"value": "@string(join(variables('v_plErrorList'), '\\n'))",
+								"type": "Expression"
+							},
 							"type": "String"
 						},
 						"MasterPipelineId": {
@@ -609,7 +626,7 @@
 						},
 						"startTime": {
 							"value": {
-								"value": "@activity('ACT_EXEPL01-FullLoad_IngestionValidation').output.executionDetails[0].start",
+								"value": "@variables('v_pipelineStartTime')",
 								"type": "Expression"
 							},
 							"type": "DateTime"
@@ -778,7 +795,10 @@
 							"type": "DateTime"
 						},
 						"ErrorDesc": {
-							"value": "@string(join(variables('v_plErrorList'), '\\n'))",
+							"value": {
+								"value": "@string(join(variables('v_plErrorList'), '\\n'))",
+								"type": "Expression"
+							},
 							"type": "String"
 						},
 						"MasterPipelineId": {
@@ -893,7 +913,10 @@
 							"type": "DateTime"
 						},
 						"ErrorDesc": {
-							"value": "@string(join(variables('v_plErrorList'), '\\n'))",
+							"value": {
+								"value": "@string(join(variables('v_plErrorList'), '\\n'))",
+								"type": "Expression"
+							},
 							"type": "String"
 						},
 						"MasterPipelineId": {
@@ -1008,7 +1031,10 @@
 							"type": "DateTime"
 						},
 						"ErrorDesc": {
-							"value": "@string(join(variables('v_plErrorList'), '\\n'))",
+							"value": {
+								"value": "@string(join(variables('v_plErrorList'), '\\n'))",
+								"type": "Expression"
+							},
 							"type": "String"
 						},
 						"MasterPipelineId": {
@@ -1078,6 +1104,23 @@
 					"referenceName": "LS_ASQL_SalesProjectDB",
 					"type": "LinkedServiceReference"
 				}
+			},
+			{
+				"name": "ACT_SetVar00-PL_startTime",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_pipelineStartTime",
+					"value": {
+						"value": "@utcNow()",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"variables": {
@@ -1095,6 +1138,9 @@
 				"type": "Array"
 			},
 			"v_scdMetadata": {
+				"type": "String"
+			},
+			"v_pipelineStartTime": {
 				"type": "String"
 			}
 		},
