@@ -90,14 +90,9 @@
 						{
 							"name": "ACT_IF-scdfails",
 							"type": "IfCondition",
-							"dependsOn": [
-								{
-									"activity": "ACT_SPRC-sp_run_scd",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
+							"state": "Inactive",
+							"onInactiveMarkAs": "Succeeded",
+							"dependsOn": [],
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
@@ -541,6 +536,116 @@
 									"type": "Expression"
 								}
 							}
+						},
+						{
+							"name": "ACT_SPRC-LogSuccess-scdTable_copy1",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "ACT_SPRC-sp_run_scd",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[audit].[sp_log_success]",
+								"storedProcedureParameters": {
+									"ActivityName": {
+										"value": {
+											"value": "'ACT_SPRC-sp_run_scd'",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"endTime": {
+										"value": {
+											"value": "@utcNow()",
+											"type": "Expression"
+										},
+										"type": "DateTime"
+									},
+									"MasterPipelineId": {
+										"value": {
+											"value": "@pipeline()?.TriggeredByPipelineRunId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"MasterPipelineName": {
+										"value": {
+											"value": "@pipeline()?.TriggeredByPipelineName",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"PipelineId": {
+										"value": {
+											"value": "@pipeline().RunId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"PipelineName": {
+										"value": {
+											"value": "@pipeline().Pipeline",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"SourceCount": {
+										"value": {
+											"value": "@item().valid_count",
+											"type": "Expression"
+										},
+										"type": "Int64"
+									},
+									"SourceSystem": {
+										"value": {
+											"value": "'Databricks staging ingestion layer'",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"startTime": {
+										"value": {
+											"value": "@variables('v_sprcStartTime')",
+											"type": "Expression"
+										},
+										"type": "DateTime"
+									},
+									"status": {
+										"value": {
+											"value": "'success'",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"TableName": {
+										"value": {
+											"value": "@item().table_name",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"TargetCount": {
+										"value": null,
+										"type": "Int64"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_ASQL_SalesProjectDB",
+								"type": "LinkedServiceReference"
+							}
 						}
 					]
 				}
@@ -809,6 +914,81 @@
 					"variableName": "v_pipelineStartTime",
 					"value": {
 						"value": "@utcNow()",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "ACT_SPRC-sp_run_scd_copy1",
+				"type": "SqlServerStoredProcedure",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[sp_run_scd]",
+					"storedProcedureParameters": {
+						"rows_affected": {
+							"value": {
+								"value": "0",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"scd_type": {
+							"value": {
+								"value": "2",
+								"type": "Expression"
+							},
+							"type": "Int32"
+						},
+						"status": {
+							"value": "''",
+							"type": "String"
+						},
+						"TableName": {
+							"value": {
+								"value": "ORDER_HEADER",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_ASQL_SalesProjectDB",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [
+					{
+						"activity": "ACT_SPRC-sp_run_scd_copy1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_scdStatus_output",
+					"value": {
+						"value": "@activity('ACT_SPRC-sp_run_scd_copy1').output.resultSets[0].rows[0].status",
 						"type": "Expression"
 					}
 				}
